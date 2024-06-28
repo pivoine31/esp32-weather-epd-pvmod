@@ -31,7 +31,6 @@
 
 // WIFI_MULTI feature
 // Use Multi credential WIFI
-// Anyway the default wifi defined in Config.cpp is always available
 
 // Use WEB serveur
 #define WEB_SVR
