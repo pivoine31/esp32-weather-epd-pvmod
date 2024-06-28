@@ -26,7 +26,7 @@ mkdir -p icons
 mkdir -p png
 
 SVG_FILES="./svg/*.svg"
-PNG_PATH="./png/${1}x${1}"
+PNG_PATH="./pne/${1}x${1}"
 PNG_FILES="${PNG_PATH}/*.png"
 HEADER_PATH="./icons/${1}x${1}"
 HEADER="./icons/icons_${1}x${1}.h"
