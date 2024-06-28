@@ -8,7 +8,7 @@ This repository contains an update of the Luke Marzen ESP32 Weather station soft
 - Automatic switching of the precipitation display pattern to avoid the contrast problem (the threshold may be modified trough the Web pages)
   The contrast modification in itself was submitted by dwuhls on issue #62 "eink display loses contrast on days with high PoP"
 - A feature named POP_AND_VOL that allows displaying simultaneously the probability of precipitations and the volume of precipitations (hourly and daily)
-²
+
 In the modified code, most of the customization options are moved to config.h
 
 Using the Web server requires to identify a means for waking-up the station in web server mode: by default, this is triggered by hitting the internal button
