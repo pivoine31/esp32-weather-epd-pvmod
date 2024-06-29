@@ -12,6 +12,7 @@ This repository contains an update of the Luke Marzen ESP32 Weather station soft
 In the modified code, most of the customization options are moved to config.h
 
 Using the Web server requires to identify a means for waking-up the station in web server mode: by default, this is triggered by hitting the internal button
+
 Others alternatives are:
 - using a touch pin connected to a metallic thing accessible from the outside (probably the best alternative when the internal button is not accessible)
 - using a custom button other than the internal one (connected with a pullup resistor to the esp32)
