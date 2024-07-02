@@ -785,7 +785,7 @@ void web_svr_setup ( void )
     if ( check_remoteLogged(&ip) )
     {
       int i;
-      for (i=0 ; i<MX_LOC ; i++)
+      for (i=0 ; i<MX_SSI ; i++)
       {
         if (request->hasParam(NSsi[i])) {
           VSsi[i] = request->getParam(NSsi[i])->value();
