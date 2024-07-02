@@ -18,7 +18,7 @@ Others alternatives are:
 - using a custom button other than the internal one (connected with a pullup resistor to the esp32)
 
 Once the Web server is started, a specific icon is displayed in the upper left corner and the Web pages may be acceeded using the IP of the station as URL (HTTP, because HTTPS not supported for this purpose)
-The Web server terminates itself after 3 min without activity (by default), or when the button is pressed again, through "exit" on Web pages
+The Web server terminates itself after 3 min without activity (by default), when the button is pressed again, or through "exit" on Web pages
 
 If not interested by the Web server, there is a custom option in config.h to disable it (#undef WEB_SVR, or remove, or comment)
 Doing this, you may still enable the "automatic pop switch", and the "pop and vol" features
