@@ -79,7 +79,7 @@ Preferences    preferences;
 String Lchecked[MX_LOC] = { "checked", "", "", "", "", "", "", "", "" };
 String VLoc[MX_LOC]     = { DEFCITY, "", "", "", "", "", "", "", "" };
 String VLat[MX_LOC]     = { DEFLAT, "", "", "", "", "", "", "", "" };
-String VLon[MX_LOC]     = { DEFLAT, "", "", "", "", "", "", "", "" };
+String VLon[MX_LOC]     = { DEFLON, "", "", "", "", "", "", "", "" };
 String NLoc[MX_LOC]     = { "loc1", "loc2", "loc3", "loc4", "loc5", "loc6", "loc7", "loc8", "loc9" };
 String NLat[MX_LOC]     = { "lat1", "lat2", "lat3", "lat4", "lat5", "lat6", "lat7", "lat8", "lat9" };
 String NLon[MX_LOC]     = { "lon1", "lon2", "lon3", "lon4", "lon5", "lon6", "lon7", "lon8", "lon9" };
