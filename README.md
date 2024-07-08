@@ -23,9 +23,13 @@ Doing this, the "automatic pop switch" and the "pop and vol" features are still 
 Concerning the Wifi credential and the location :
 - if Web server is not used, the location (DEFLAT / DEFLON / DEFCITY) and one credential (WIFI_SSI1 / WIFI_PWD1) needs to be defined (in the section "WEB SERVER NOT USED")
 - if Web server is used, default values for the location (DEFLAT / DEFLON / DEFCITY) and the credential (WIFI_SSI1 / WIFI_PWD1) may be either left empty, or may be defined (in the section "WEB SERVER USED")
+
 If any (wifi/location) value is defined, it is used as a default value: it is setup initially in first (wifi/location) entry and reinstated every time the parameters are reset
+
 Once the Web server is started, a specific icon is displayed in the upper left corner and the Web pages may be acceeded using the IP of the station as URL (HTTP, because HTTPS not supported for this purpose)
+
 The Web server terminates itself after 3 min without activity (by default), when the button is pressed again, or through "exit" on Web pages
+
 When no Wifi network is available, the weather station acts as an Access Point (SSID "ESP32-Meteo", password ""ESP32-Meteo"); the Web server is acceeded in this case at address 192.168.4.1 in HTTP mode
 
 If not interested by the Web server, there is a custom option in config.h to disable it (#undef WEB_SVR, or remove, or comment)
