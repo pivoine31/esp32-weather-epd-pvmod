@@ -22,7 +22,7 @@ Doing this, the "automatic pop switch" and the "pop and vol" features are still 
 
 Concerning the Wifi credential and the location :
 - if Web server is not used, the location (DEFLAT / DEFLON / DEFCITY) and one credential (WIFI_SSI1 / WIFI_PWD1) needs to be defined (in the section "WEB SERVER NOT USED")
-- if Web server is used, default value for the location (DEFLAT / DEFLON / DEFCITY) and the credential (WIFI_SSI1 / WIFI_PWD1) may be either left empty, or may be defined (in the section "WEB SERVER USED")
+- if Web server is used, default values for the location (DEFLAT / DEFLON / DEFCITY) and the credential (WIFI_SSI1 / WIFI_PWD1) may be either left empty, or may be defined (in the section "WEB SERVER USED")
 If any (wifi/location) value is defined, it is used as a default value: it is setup initially in first (wifi/location) entry and reinstated every time the parameters are reset
 Once the Web server is started, a specific icon is displayed in the upper left corner and the Web pages may be acceeded using the IP of the station as URL (HTTP, because HTTPS not supported for this purpose)
 The Web server terminates itself after 3 min without activity (by default), when the button is pressed again, or through "exit" on Web pages
