@@ -502,7 +502,11 @@ size_t _strftime(char *s, size_t maxsize, const char *format,
       struct tm non_const_timeptr;
 
       non_const_timeptr = *timeptr;
+#if ESP_IDF_VERSION_MAJOR < 5
       sprintf(tbuf, "%ld", mktime(&non_const_timeptr));
+#else
+      sprintf(tbuf, "%lld", mktime(&non_const_timeptr));
+#endif
       break;
     }
 

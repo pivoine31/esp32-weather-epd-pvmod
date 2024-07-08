@@ -79,7 +79,7 @@ Preferences    preferences;
 String Lchecked[MX_LOC] = { "checked", "", "", "", "", "", "", "", "" };
 String VLoc[MX_LOC]     = { DEFCITY, "", "", "", "", "", "", "", "" };
 String VLat[MX_LOC]     = { DEFLAT, "", "", "", "", "", "", "", "" };
-String VLon[MX_LOC]     = { DEFLAT, "", "", "", "", "", "", "", "" };
+String VLon[MX_LOC]     = { DEFLON, "", "", "", "", "", "", "", "" };
 String NLoc[MX_LOC]     = { "loc1", "loc2", "loc3", "loc4", "loc5", "loc6", "loc7", "loc8", "loc9" };
 String NLat[MX_LOC]     = { "lat1", "lat2", "lat3", "lat4", "lat5", "lat6", "lat7", "lat8", "lat9" };
 String NLon[MX_LOC]     = { "lon1", "lon2", "lon3", "lon4", "lon5", "lon6", "lon7", "lon8", "lon9" };
@@ -120,15 +120,24 @@ int    HourlyNb = DEFHOURNB;
 #define NM_MRT "MinRef"
 int    MinRefTim = DEF_MINREF_TIM;
 
-// Maxime Web server active time
+// Maximum Web server active time
 #define NM_MAT "MajAct"
 int    MaxActTim = DEF_MAXACT_TIM;
 
+// WIFI Per AP timeout
+#define NM_WAT "WifiAPto"
+unsigned int  WifiAPto = DEF_AP_TIMEOUT;
+
+// WIFI global timeout
+#define NM_WGT "WifiGLto"
+unsigned long WifiTimeout = DEF_WIFI_TIMEOUT;
+
+// WIFI global timeout
+#define NM_HTO "HttpTo"
+unsigned int  HttpTimeout = DEF_HTTP_TIMEOUT;
+
 // Init flag
 #define NM_INIT "Inited"
-
-// Empty string for convenience
-const String mtstr = "";
 
 /*
  * CLEAR_NVS
@@ -176,6 +185,8 @@ void clean_nvs ( void )
   preferences.putString(NM_HNB, String(HourlyNb));
   preferences.putString(NM_MRT, String(MinRefTim));
   preferences.putString(NM_MAT, String(MaxActTim));
+  preferences.putString(NM_WAT, String(WifiAPto));
+  preferences.putString(NM_WGT, String(WifiTimeout));
 
   preferences.putString(NM_INIT, "yes");
 }
@@ -221,11 +232,15 @@ int check_config ( void )
     rc = 1;
   }
 
-  // Restaure default WiFi anyway (Read-Only)
-  VSsi[0] = WIFI_SSI1;
-  VPwd[0] = WIFI_PWD1;
-  preferences.putString(NSsi[0].c_str(), VSsi[0]);
-  preferences.putString(NPwd[0].c_str(), VPwd[0]);
+  // In entry 0 not suitable, reinit
+  if ( (VSsi[0] == "") ||
+       (VPwd[0] == "")  )
+  {
+    VSsi[0] = WIFI_SSI1;
+    VPwd[0] = WIFI_PWD1;
+    preferences.putString(NSsi[0].c_str(), VSsi[0]);
+    preferences.putString(NPwd[0].c_str(), VPwd[0]);
+  }
 
   return rc;
 }
@@ -244,7 +259,7 @@ void retrieve_config ( void )
   preferences.begin(HNAME, false);
 
   // Check if NVS has already been init (occurs only once, but avoid tons of log messages)
-  s = preferences.getString(NM_INIT, mtstr);
+  s = preferences.getString(NM_INIT, "");
   if ( s == "" )
   {
     // Clear NVS and recreate default entries
@@ -253,17 +268,17 @@ void retrieve_config ( void )
 
   for (i=0 ; i<MX_LOC ; i++)
   {
-    VLoc[i] = preferences.getString(NLoc[i].c_str(), (i ? mtstr : DEFCITY));
-    VLat[i] = preferences.getString(NLat[i].c_str(), (i ? mtstr : DEFLAT));
-    VLon[i] = preferences.getString(NLon[i].c_str(), (i ? mtstr : DEFLON));
+    VLoc[i] = preferences.getString(NLoc[i].c_str(), (i ? "" : DEFCITY));
+    VLat[i] = preferences.getString(NLat[i].c_str(), (i ? "" : DEFLAT));
+    VLon[i] = preferences.getString(NLon[i].c_str(), (i ? "" : DEFLON));
   }
   DefLoc = preferences.getString(NDloc.c_str(), "0");
   defloc = DefLoc.toInt();
 
   for (i=0 ; i<MX_SSI ; i++)
   {
-    VSsi[i] = preferences.getString(NSsi[i].c_str(), (i ? mtstr : WIFI_SSI1));
-    VPwd[i] = preferences.getString(NPwd[i].c_str(), (i ? mtstr : WIFI_PWD1));
+    VSsi[i] = preferences.getString(NSsi[i].c_str(), (i ? "" : WIFI_SSI1));
+    VPwd[i] = preferences.getString(NPwd[i].c_str(), (i ? "" : WIFI_PWD1));
   }
 
   s = preferences.getString(NM_THR, String(PRECIP_THRESHOLD));
@@ -280,6 +295,10 @@ void retrieve_config ( void )
   MinRefTim = s.toInt();
   s = preferences.getString(NM_MAT, String(DEF_MAXACT_TIM));
   MaxActTim = s.toInt();
+  s = preferences.getString(NM_WAT, String(DEF_AP_TIMEOUT));
+  WifiAPto = s.toInt();
+  s = preferences.getString(NM_WGT, String(DEF_WIFI_TIMEOUT));
+  WifiTimeout = s.toInt();
 
   check_config();
 }
@@ -295,9 +314,9 @@ void reset_weather_config ( void )
   
   for (i=0 ; i<MX_LOC ; i++)
   {
-    VLoc[i] = i ? mtstr : DEFCITY;
-    VLat[i] = i ? mtstr : DEFLAT;
-    VLon[i] = i ? mtstr : DEFLON;
+    VLoc[i] = i ? "" : DEFCITY;
+    VLat[i] = i ? "" : DEFLAT;
+    VLon[i] = i ? "" : DEFLON;
     preferences.putString(NLoc[i].c_str(), VLoc[i]);
     preferences.putString(NLat[i].c_str(), VLat[i]);
     preferences.putString(NLon[i].c_str(), VLon[i]);
@@ -319,10 +338,10 @@ void reset_wifi_config ( void )
   
   for (i=0 ; i<MX_SSI ; i++)
   {
-    VSsi[i] = i ? mtstr : WIFI_SSI1;
-    VPwd[i] = i ? mtstr : WIFI_PWD1;
-    preferences.putString(NSsi[i].c_str(), mtstr);
-    preferences.putString(NPwd[i].c_str(), mtstr);
+    VSsi[i] = i ? "" : WIFI_SSI1;
+    VPwd[i] = i ? "" : WIFI_PWD1;
+    preferences.putString(NSsi[i].c_str(), VSsi[i]);
+    preferences.putString(NPwd[i].c_str(), VPwd[i]);
   }
 
   check_config();
@@ -349,6 +368,10 @@ void reset_parm_config ( void )
   preferences.putString(NM_MRT, String(MinRefTim));
   MaxActTim = DEF_MAXACT_TIM;
   preferences.putString(NM_MAT, String(MaxActTim));
+  WifiAPto = DEF_AP_TIMEOUT;
+  preferences.putString(NM_WAT, String(WifiAPto));
+  WifiTimeout = DEF_WIFI_TIMEOUT;
+  preferences.putString(NM_WGT, String(WifiTimeout));
 }
 
 /*
@@ -365,13 +388,44 @@ void notFound(AsyncWebServerRequest *request) {
 #define MX_LOG 5
 
 static int       remnb = 0;
-static uint32_t  remlog[MX_LOG] =
-       { (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0 };
-static time_t    remtim[MX_LOG] = { 0, 0, 0, 0, 0 };
+static IPAddress remlog[MX_LOG];
+static time_t    remtim[MX_LOG];
+
+static int check_remoteLogged ( IPAddress *rem )
+{
+  int i;
+
+  if ( !remnb )
+    for (i=1 ; i<MX_LOG ; i++)
+    {
+      remlog[i] = (uint32_t)0;
+      remtim[i] = (time_t)0;
+    }
+
+  for (i=0 ; i<remnb ; i++)
+  {
+    if ( remlog[i] == *rem )
+    {
+      Serial.print("IP address: ");
+      Serial.print(*rem);
+      Serial.print(" found at entry ");
+      Serial.println(i);
+      return 1;
+    }
+  }
+
+  Serial.print("IP address: ");
+  Serial.print(*rem);
+  Serial.println(" not found");
+  return 0;
+}
 
 static void log_remote ( IPAddress *rem )
 {
   int i, f;
+
+  if ( check_remoteLogged(rem) )
+    return;
 
   if ( remnb < MX_LOG )
   {
@@ -391,31 +445,12 @@ static void log_remote ( IPAddress *rem )
       }
   }
 
-  memcpy(&remlog[f], (uint32_t *)rem, sizeof(uint32_t));
+  remlog[f] = *rem;
 
   Serial.print("Backup IP address: ");
   Serial.print(*rem);
   Serial.print(" at entry ");
   Serial.println(f);
-}
-
-static int check_remoteLogged ( IPAddress *rem )
-{
-  int i;
-  for (i=0 ; i<remnb ; i++)
-    if ( !memcmp((uint32_t *)rem,&remlog[i],sizeof(uint32_t)) )
-    {
-      Serial.print("IP address: ");
-      Serial.print(*rem);
-      Serial.print(" found at entry ");
-      Serial.println(i);
-      return 1;
-    }
-
-  Serial.print("IP address: ");
-  Serial.print(*rem);
-  Serial.println(" not found");
-  return 0;
 }
 
 #ifdef WEBKEY
@@ -743,9 +778,9 @@ void web_svr_setup ( void )
       "<form action=\"/wifi_get\" method=\"get\">"
         "<div class=\"p1\">"
 	"<label for=\"ssi1\">SSID 1</label>"
-        "<input type=\"text\" class=\"ssi\" id=\"ssi1\" name=\"" + NSsi[0] + "\" value=\"" + VSsi[0] + "\" readonly>"
+        "<input type=\"text\" class=\"ssi\" id=\"ssi1\" name=\"" + NSsi[0] + "\" value=\"" + VSsi[0] + "\">"
         "<label for=\"pwd1\">PWD 1</label>"
-        "<input type=\""+TAGPWD+"\" class=\"pwd\" id=\"pwd1\" name=\"" + NPwd[0] + "\" value=\"" + VPwd[0] + "\" readonly><br>"
+        "<input type=\""+TAGPWD+"\" class=\"pwd\" id=\"pwd1\" name=\"" + NPwd[0] + "\" value=\"" + VPwd[0] + "\"><br>"
         "<label for=\"ssi2\">SSID 2</label>"
         "<input type=\"text\" class=\"ssi\" id=\"ssi2\" name=\"" + NSsi[1] + "\" value=\"" + VSsi[1] + "\">"
         "<label for=\"pwd2\">PWD 2</label>"
@@ -785,7 +820,7 @@ void web_svr_setup ( void )
     if ( check_remoteLogged(&ip) )
     {
       int i;
-      for (i=0 ; i<MX_LOC ; i++)
+      for (i=0 ; i<MX_SSI ; i++)
       {
         if (request->hasParam(NSsi[i])) {
           VSsi[i] = request->getParam(NSsi[i])->value();
@@ -833,9 +868,9 @@ void web_svr_setup ( void )
       "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
       "<style>"
       ".p1 {max-width:520px;}" 
-      ".l1 {display:inline-block;width:170px;margin-left:8px}" 
+      ".l1 {display:inline-block;width:180px;margin-left:8px}" 
       ".l2 {display:inline-block;margin-left:8px}" 
-      "input[type=number] {width:50px;margin-top:10px;text-align:center;}" 
+      "input[type=number] {width:60px;margin-top:10px;text-align:center;}" 
       ".rst {float:right;}" 
       "</style>"
       "<title>"+W_PARMV+"</title>"
@@ -870,7 +905,17 @@ void web_svr_setup ( void )
         "<label for=\"maxa\" class=\"l1\">"+W_WEBDLY+"</label>"
         "<input type=\"number\" class=\"num\" id=\"maxa\" name=\"" + NM_MAT + "\" value=\"" + String(MaxActTim) + "\" "
           "min=60 max=600 step=1>"
-        "<label for=\"maxa\" class=\"l2\">sec</label><br><br>"
+        "<label for=\"maxa\" class=\"l2\">sec</label><br>"
+        "<label for=\"hto\" class=\"l1\">"+W_HTO+"</label>"
+        "<input type=\"number\" class=\"num\" id=\"hto\" name=\"" + NM_HTO + "\" value=\"" + String(HttpTimeout) + "\" >"
+        "<label for=\"hto\" class=\"l2\">msec</label><br>"
+        "<label for=\"wato\" class=\"l1\">"+W_WATO+"</label>"
+        "<input type=\"number\" class=\"num\" id=\"wato\" name=\"" + NM_WAT + "\" value=\"" + String(WifiAPto) + "\" >"
+        "<label for=\"wato\" class=\"l2\">msec</label><br>"
+        "<label for=\"wgto\" class=\"l1\">"+W_WGTO+"</label>"
+        "<input type=\"number\" class=\"num\" id=\"wgto\" name=\"" + NM_WGT + "\" value=\"" + String(WifiTimeout) + "\" >"
+        "<label for=\"wgto\" class=\"l2\">msec</label><br><br>"
+        "<label for=\"wgto\" class=\"l2\">" + W_WTOREC + "</label><br><br>"
         "<a href=\"/parm_reset\" class=\"rst\">"+W_REINITV+"</a>"
         "<a href=\"/weather\">"+W_PARMM+"</a><br><br>"
         "<a href=\"/wifi\">"+W_PARMW+"</a><br><br>"
@@ -1039,14 +1084,17 @@ void web_svr_setup ( void )
 // Wifi instance
 WiFiMulti wifiMulti;
 
-static int wsta = 0;
+/*
+ * Current Wifi state
+ */
+static int cur_wst = -1;
 
 #ifndef WEB_SVR
 // WEB server not used, so need to define the credential locally
 #define MX_SSI 6
 
-String VSsi[MX_SSI]     = { WIFI_SSI1, WIFI_SSI2, WIFI_SSI3, WIFI_SSI4, WIFI_SSI5, WIFI_SSI6 }; 
-String VPwd[MX_SSI]     = { WIFI_PWD1, WIFI_PWD2, WIFI_PWD3, WIFI_PWD4, WIFI_PWD5, WIFI_PWD6 }; 
+String VSsi[MX_SSI] = { WIFI_SSI1, WIFI_SSI2, WIFI_SSI3, WIFI_SSI4, WIFI_SSI5, WIFI_SSI6 }; 
+String VPwd[MX_SSI] = { WIFI_PWD1, WIFI_PWD2, WIFI_PWD3, WIFI_PWD4, WIFI_PWD5, WIFI_PWD6 }; 
 #endif
 
 /*
@@ -1056,33 +1104,24 @@ String VPwd[MX_SSI]     = { WIFI_PWD1, WIFI_PWD2, WIFI_PWD3, WIFI_PWD4, WIFI_PWD
  */
 int wifi_check ( void )
 {
-  int rc;
+  int wst = wifiMulti.run(WIFI_AP_TO);
 
-  if (wifiMulti.run() == WL_CONNECTED)
+  if ( wst != cur_wst )
   {
-    if ( !wsta )
+    cur_wst = wst;
+    Serial.printf("WIFI state : %s (%d)\n",
+                   (wst == WL_CONNECTED) ? "connected" : "off", wst);
+
+    if ( wst == WL_CONNECTED )
     {
-      wsta = 1;
-      Serial.println("WiFi connected");
-      Serial.print("IP address: ");
+      Serial.print("SSID: ");
+      Serial.println(WiFi.SSID());
+      Serial.print("IP Address: ");
       Serial.println(WiFi.localIP());
-      Serial.print(WiFi.SSID());
-      Serial.print(" ");
-      Serial.println(WiFi.RSSI());
     }
-    rc = 1;
-  }
-  else
-  {
-    if ( wsta )
-    {
-      wsta = 0;
-      Serial.println("WiFi not connected!");
-    }
-    rc = 0;
   }
 
-  return rc;
+  return wst;
 }
 
 /*
@@ -1119,6 +1158,30 @@ void wifi_scanSsid ( void )
 }
 
 /*
+ * WIFI_ADDAP
+ *
+ * Empty and set list of Wifi Access Points
+ */
+int wifi_addAP ( void )
+{
+  int i, n;
+  
+  //wifiMulti.APlistClean();
+
+  for (i=n=0; i<MX_SSI ; i++)
+  {
+    if ( VSsi[i] != "" )
+    {
+      Serial.printf("Adding AP '%s'\n", VSsi[i].c_str());
+      wifiMulti.addAP(VSsi[i].c_str(), VPwd[i].c_str());
+      n++;
+    }
+  }
+  
+  return n;
+}
+
+/*
  * STARTWIFI
  *
  * Power-on and connect WiFi.
@@ -1126,53 +1189,92 @@ void wifi_scanSsid ( void )
  *
  * Returns WiFi status.
  */
-wl_status_t startWiFi(int &wifiRSSI)
+wl_status_t startWiFi(int &wifiRSSI, int web_mode)
 {
   // timeout if WiFi does not connect in WIFI_TIMEOUT ms from now
-  wl_status_t   connection_status;
   unsigned long timeout = millis() + WIFI_TIMEOUT;
-  int           i;
-
+  wl_status_t   connection_status = WL_CONNECTED;
+  int           n;
+  
   //define hostname
   WiFi.setHostname(HNAME);
 
-  WiFi.mode(WIFI_STA);
+#ifdef WEB_SVR
+  if (web_mode)
+  {
+    WiFi.mode(WIFI_AP_STA);
+    WiFi.softAP(SOFTAP_SSID, SOFTAP_PWD);
 
+    Serial.print("WIFI AP ");
+    Serial.print(SOFTAP_SSID);
+    Serial.print(" created with IP gateway ");
+    Serial.println(WiFi.softAPIP());
+  }
+  else
+#endif
+  {
+    WiFi.mode(WIFI_STA);
+    Serial.println("WIFI Station");
+  }
   
   Serial.printf("%s '%s'\n", TXT_CONNECTING_TO, "WiFi");
 
-  for (i = 0; i<MX_SSI ; i++)
-  {
-    if ( VSsi[i] != "" )
-    {
-      //Serial.printf("Adding AP '%s' - '%s'\n", VSsi[i].c_str(), VPwd[i].c_str());
-      Serial.printf("Adding AP '%s'\n", VSsi[i].c_str());
-      wifiMulti.addAP(VSsi[i].c_str(), VPwd[i].c_str());
-    }
-  }
+  n = wifi_addAP();
 
   wifi_scanSsid();
 
+#ifdef OLD
   do
   {
+static int prv = -1;
+
     delay(50);
     connection_status = (wl_status_t) wifiMulti.run();
+    if ( connection_status != prv )
+    {
+      Serial.printf("wifi state = %d\n", connection_status); 
+      prv = connection_status;
+    }
   }
-  while ((connection_status != WL_CONNECTED) && (millis() < timeout));
+  while ( (connection_status != WL_CONNECTED)  &&
+          ((millis() - timeout) < WIFI_TIMEOUT) );
+#else
+  if ( n )
+  {
+    // At least one AP defined
+    do
+    {
+      connection_status = (wl_status_t) wifi_check();
+      //Serial.printf("ST=%d, (%d-%d-%d)\n", connection_status,
+      //       WL_CONNECTED,
+      //       WL_NO_SSID_AVAIL,
+      //       WL_DISCONNECTED);
+    }
+    while ( (connection_status != WL_CONNECTED)     &&
+            (connection_status != WL_NO_SSID_AVAIL) &&
+            (connection_status != WL_DISCONNECTED)  &&
+            ((millis() - timeout) < WIFI_TIMEOUT)    );
+  }
+  else
+    connection_status = WL_NO_SSID_AVAIL;
+#endif
 
   if (connection_status == WL_CONNECTED)
   {
-    wifiRSSI = WiFi.RSSI(); // get WiFi signal strength now, because the WiFi
-                            // will be turned off to save power!
+    // Get WiFi signal strength now, because the WiFi
+    // will be turned off to save power!
+    wifiRSSI = WiFi.RSSI();
+
+#ifdef OLD
     Serial.print("SSID: ");
     Serial.println(WiFi.SSID());
     Serial.println("IP: " + WiFi.localIP().toString());
-    wsta = 1;
+    //wsta = 1;
+#endif
   }
   else
-  {
     Serial.printf("%s '%s'\n", TXT_COULD_NOT_CONNECT_TO, "WiFi");
-  }
+
   return connection_status;
 } // startWiFi
 
@@ -1183,6 +1285,8 @@ wl_status_t startWiFi(int &wifiRSSI)
  */
 void killWiFi()
 {
+  Serial.println("Killing WIFI");
+  
   WiFi.disconnect();
   WiFi.mode(WIFI_OFF);
 } // killWiFi
@@ -1236,8 +1340,8 @@ void killWiFi()
     }
 
     HTTPClient http;
-    http.setConnectTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
-    http.setTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
+    http.setConnectTimeout(HTTP_CLIENT_TCP_TIMEOUT);
+    http.setTimeout(HTTP_CLIENT_TCP_TIMEOUT);
     http.begin(client, OWM_ENDPOINT, OWM_PORT, uri);
     httpResponse = http.GET();
     if (httpResponse == HTTP_CODE_OK)
@@ -1312,8 +1416,8 @@ void killWiFi()
     }
 
     HTTPClient http;
-    http.setConnectTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
-    http.setTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
+    http.setConnectTimeout(HTTP_CLIENT_TCP_TIMEOUT);
+    http.setTimeout(HTTP_CLIENT_TCP_TIMEOUT);
     http.begin(client, OWM_ENDPOINT, OWM_PORT, uri);
     httpResponse = http.GET();
     if (httpResponse == HTTP_CODE_OK)

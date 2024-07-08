@@ -51,17 +51,13 @@ const uint8_t BME_ADDRESS = 0x76; // If sensor does not work, try 0x77
 // Default SSID / Password
 // WIFI_MULTI credentials now defined in config.h
 
-// WiFi connection timeout (msec)
-// WIFI_MULTI Increase value when multiples AP in use
-const unsigned long WIFI_TIMEOUT = DEF_WIFI_TIMEOUT;
-
 // HTTP request timeout (msec)
 // The following errors are likely the result of insufficient http client tcp 
 // timeout:
 //   -1   Connection Refused
 //   -11  Read Timeout
 //   -258 Deserialization Incomplete Input
-const unsigned HTTP_CLIENT_TCP_TIMEOUT = 10000; // ms
+// Moved to HttpTimeout var, with a default value defined in config.h
 
 // OPENWEATHERMAP API
 // OpenWeatherMap API key, https://openweathermap.org/
@@ -89,10 +85,14 @@ const String OWM_ONECALL_VERSION = "3.0";
 #ifdef WEB_SVR
 // LAT, LON and CITY_STRING coming from the WEB server data
 #else
-const String LAT = DEFLAT;
-const String LON = DEFLON;
 // City name that will be shown in the top-right corner of the display.
 const String CITY_STRING = DEFCITY;
+const String LAT = DEFLAT;
+const String LON = DEFLON;
+
+const unsigned int  WIFI_AP_TO = DEF_AP_TIMEOUT;
+const unsigned long WIFI_TIMEOUT = DEF_WIFI_TIMEOUT;
+const unsigned      HTTP_CLIENT_TCP_TIMEOUT = DEF_HTTP_TIMEOUT;
 #endif // WEB_SVR
 
 

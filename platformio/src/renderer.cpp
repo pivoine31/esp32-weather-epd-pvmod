@@ -243,6 +243,12 @@ void initDisplay ( int partial )
 {
   pinMode(PIN_EPD_PWR, OUTPUT);
   digitalWrite(PIN_EPD_PWR, HIGH);
+
+  // Just to avoid runtime warning in digitalWrite
+  pinMode(PIN_EPD_CS, OUTPUT);
+  pinMode(PIN_EPD_RST, OUTPUT);
+  pinMode(PIN_EPD_DC, OUTPUT);
+  
 #ifdef DRIVER_WAVESHARE
   display.init(115200, partial ? false : true, 2, false);
   // remap spi for waveshare
@@ -297,8 +303,10 @@ void powerOffDisplay()
 #ifdef WEB_SVR
 void drawWebIcon ( int drawIcon )
 {
-  if ( drawIcon )
+  if ( drawIcon == 1 )
     display.drawInvertedBitmap(0, 0, web_icon_40x40, 40, 40, GxEPD_BLACK);
+  else if ( drawIcon == 2 )
+    display.drawInvertedBitmap(0, 0, ap_icon_40x40, 40, 40, GxEPD_BLACK);
   else
   {
     // Just clear the Web icon using partial refresh
@@ -1215,7 +1223,10 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
  /* AUTO_POP_CONTRAST */
   precipValTotMax = precipBoundMax * HOURLY_GRAPH_MAX;
   //Serial.printf("POP: ValToT=%f, ValMax=%f, BoundMax=%f\n", precipValTot, precipValTotMax, precipBoundMax);
-  Serial.print("Precipitation graph fill ratio = " + String(precipValTot/precipValTotMax));
+  if ( precipValTotMax )
+    Serial.print("Precipitation graph fill ratio = " + String(precipValTot/precipValTotMax));
+  else
+    Serial.print("Precipitation graph fill ratio = 0 ");
 
 #ifdef WEB_SVR
   Serial.println(" Threshold = " + String(PopTh));

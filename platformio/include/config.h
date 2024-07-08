@@ -21,6 +21,12 @@
 #include <cstdint>
 #include <Arduino.h>
 
+// WEB_SVR feature
+// Default is to use WEB server (comment or #undef for not using it)
+// If not used, location and wifi credential shall be defined in this file
+// When using Web server, these are set through the Web pages 
+#define WEB_SVR
+
 // AUTO_TZ feature
 // Fetch current time (at location) and timezone in OWM response
 // (avoid SNTP setup delay, and automate time management for various locations)
@@ -31,11 +37,54 @@
 
 // WIFI_MULTI feature
 // Use Multi credential WIFI
+// Nom d'hote (used also for NVS storage, and Soft AP)
+// Shall not exceed 15 characters
+#define HNAME "ESP32-Meteo"
 
-// Use WEB serveur
-#define WEB_SVR
+// Check and re-establish Wifi (web server mode)
+int wifi_check ( void );
+/* WIFI_MULTI */
 
 #ifdef WEB_SVR
+/*
+ * WEB SERVER USED
+ *
+ * Definitions in this section apply only when web server is used
+ */
+
+/*
+ * Default location and credential
+ *
+ * These definitions are optional when the Web server is used
+ * Modifications are usually performed through Web pages
+ * Any value specified here is used as default, and reinstated
+ * when the parameters (weather / wifi) are reset
+ */
+
+// Default station location and coordinates
+#define DEFLAT        "" 
+#define DEFLON        "" 
+#define DEFCITY       "" 
+
+// Default Wifi credential
+#define WIFI_SSI1 ""
+#define WIFI_PWD1 ""
+
+// Wifi credential(s) and possible station locations are entered through the
+// Web interface
+// When no Wifi credential defined, Wifi access still possible using Soft AP
+// (Wifi network handled by the Weather Station; name and password follow)
+
+/*
+ * Soft AP name and password
+ *
+ * The weather station acts as an Access Point when no Wifi network is available
+ * The SSID and Password are defined below
+ * When connecting to this AP, the Web server is usually made available in HTTP mode
+ * at address 192.168.4.1
+ */
+#define SOFTAP_SSID HNAME
+#define SOFTAP_PWD  "Weather.32"
 
 // Strategy/pin for entering Web server from deep sleep
 // BUTTON and TOUCH are mutually exclusive
@@ -94,6 +143,9 @@ extern int    HourlyNb;
 extern int    MinRefTim;
 extern int    MaxActTim;
 extern int    defloc;
+extern unsigned int  WifiAPto;
+extern unsigned long WifiTimeout;
+extern unsigned int  HttpTimeout;
 
 /*
  * External fonctions and vars called by WEB server
@@ -105,12 +157,36 @@ void drawWebIcon     ( int active );
 
 extern unsigned long startTime;
 
-#endif // WEB_SVR
+#else
+/*
+ * WEB SERVER NOT USED
+ *
+ * Definitions of Wifi network and location are mandatory in this case
+ */
 
-// Default location and coordinates
+// Station location and coordinates
 #define DEFLAT        "40.7128" 
 #define DEFLON        "-74.0060" 
 #define DEFCITY       "New York" 
+
+// Define Wifi credential here
+// When Web server not used, need to define at least one credential here
+// Up to 6 credentials may be defined here
+// Credential with empty SSID are not used
+#define WIFI_SSI1 ""
+#define WIFI_PWD1 ""
+#define WIFI_SSI2 ""
+#define WIFI_PWD2 ""
+#define WIFI_SSI3 ""
+#define WIFI_PWD3 ""
+#define WIFI_SSI4 ""
+#define WIFI_PWD4 ""
+#define WIFI_SSI5 ""
+#define WIFI_PWD5 ""
+#define WIFI_SSI6 ""
+#define WIFI_PWD6 ""
+
+#endif // WEB_SVR
 
 // Define hours of last update (DEFBEDà until wake time (DEFWAKE)
 // If bed time == wake time, then this battery saving feature is disabled
@@ -137,42 +213,14 @@ extern unsigned long startTime;
 // Value 1.0 disable the feature
 #define PRECIP_THRESHOLD 0.65f
 
-/* WIFI_MULTI */
-// Nom d'hote (used also for NVS storage)
-#define HNAME "ESP32-Meteo"
-
-// Define Wifi credential here
-// When Web server in use, only one is defined
-// It is made read-only and used as default (emergency wifi credential)
-// Other credential are entered through the Web interface
-#define WIFI_SSI1 ""
-#define WIFI_PWD1 ""
-
-#ifndef WEB_SVR
-// When Web server not used, up to 5 five additional credential
-// may be defined here
-// If empty, credential entry not used
-#define WIFI_SSI2 ""
-#define WIFI_PWD2 ""
-#define WIFI_SSI3 ""
-#define WIFI_PWD3 ""
-#define WIFI_SSI4 ""
-#define WIFI_PWD4 ""
-#define WIFI_SSI5 ""
-#define WIFI_PWD5 ""
-#define WIFI_SSI6 ""
-#define WIFI_PWD6 ""
-#endif // WEB_SVR
-
-// Check and re-establish Wifi (web server mode)
-int wifi_check ( void );
-/* WIFI_MULTI */
-
 // WIFI
-// Default SSID / Password
+// WIFI_MULTI
+// WiFi per AP connection timeout (msec)
+// -> increase if a registered and active Wifi fails to connect (long connection)
+#define DEF_AP_TIMEOUT    5000
 
-// WiFi connection timeout (msec)
-// WIFI_MULTI Increase value when multiples AP in use
+// WiFi global connection timeout (msec)
+// Should logically at least (number of registered AP * AP_TIMEOUT)
 #define DEF_WIFI_TIMEOUT 30000
 
 // HTTP request timeout (msec)
@@ -181,7 +229,7 @@ int wifi_check ( void );
 //   -1   Connection Refused
 //   -11  Read Timeout
 //   -258 Deserialization Incomplete Input
-#define DEF_HTTP_CLIENT_TCP_TIMEOUT 10000
+#define DEF_HTTP_TIMEOUT 10000
 
 // E-PAPER PANEL
 // This project supports the following E-Paper panels:
@@ -466,7 +514,7 @@ int wifi_check ( void );
 //   level 2: print api responses to serial monitor
 #define DEBUG_LEVEL 0
 
-// Set the below constants in "config.cpp"
+// Below constants may be customized in "config.cpp"
 extern const uint8_t PIN_BAT_ADC;
 extern const uint8_t PIN_EPD_BUSY;
 extern const uint8_t PIN_EPD_CS;
@@ -480,13 +528,12 @@ extern const uint8_t PIN_BME_SDA;
 extern const uint8_t PIN_BME_SCL;
 extern const uint8_t PIN_BME_PWR;
 extern const uint8_t BME_ADDRESS;
-extern const char *WIFI_SSID;
-extern const char *WIFI_PASSWORD;
-extern const unsigned long WIFI_TIMEOUT;
-extern const unsigned HTTP_CLIENT_TCP_TIMEOUT;
+
+// Below constants have a default value defined in may be customized in "config.cpp"
 extern const String OWM_APIKEY;
 extern const String OWM_ENDPOINT;
 extern const String OWM_ONECALL_VERSION;
+
 #ifdef WEB_SVR
 // Remap references to these data
 #define LAT              VLat[defloc]
@@ -496,6 +543,9 @@ extern const String OWM_ONECALL_VERSION;
 #define WAKE_TIME        WakeTime
 #define SLEEP_DURATION   SleepDly
 #define HOURLY_GRAPH_MAX HourlyNb
+#define WIFI_TIMEOUT     WifiTimeout
+#define WIFI_AP_TO       WifiAPto
+#define HTTP_CLIENT_TCP_TIMEOUT HttpTimeout
 
 #else // WEB_SVR
 extern const String LAT;
@@ -505,6 +555,9 @@ extern const int BED_TIME;
 extern const int WAKE_TIME;
 extern const long SLEEP_DURATION;
 extern const int HOURLY_GRAPH_MAX;
+extern const unsigned int WIFI_AP_TO;
+extern const unsigned long WIFI_TIMEOUT;
+extern const unsigned HTTP_CLIENT_TCP_TIMEOUT;
 #endif // WEB_SVR
 extern const char *TIME_FORMAT;
 extern const char *HOUR_FORMAT;

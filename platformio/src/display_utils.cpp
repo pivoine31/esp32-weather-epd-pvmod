@@ -18,8 +18,18 @@
 #include <cmath>
 #include <vector>
 #include <Arduino.h>
+
+#include <esp_idf_version.h>
+
+#if ESP_IDF_VERSION_MAJOR < 5
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
+#else
+#include <driver/gpio.h>
+#include <esp_adc/adc_oneshot.h>
+#include <esp_adc/adc_cali.h>
+#include <esp_adc/adc_cali_scheme.h>
+#endif
 
 #include <aqi.h>
 
@@ -41,6 +51,10 @@
  */
 uint32_t readBatteryVoltage()
 {
+#if ESP_IDF_VERSION_MAJOR < 5
+  /*********************************
+   * Code for ESP32 framework 2.x.x
+   *********************************/
   esp_adc_cal_characteristics_t adc_chars;
   // __attribute__((unused)) disables compiler warnings about this variable
   // being unused (Clang, GCC) which is the case when DEBUG_LEVEL == 0.
@@ -75,6 +89,84 @@ uint32_t readBatteryVoltage()
   // DFRobot FireBeetle Esp32-E V1.0 voltage divider (1M+1M), so readings are
   // multiplied by 2.
   batteryVoltage *= 2;
+
+#else
+
+  /*********************************
+   * Code for ESP32 framework 3.x.x
+   *********************************/
+#define BAT_ADC_CHAN  ADC_CHANNEL_6
+  
+  // From :
+  // https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/adc_oneshot.html
+  // https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/adc_calibration.html
+  int adc_raw[2][10];
+  int voltage[2][10];
+
+  // ESP_ERROR_CHECK_WITHOUT_ABORT is an alternative
+ 
+  //-------------ADC1 Init---------------//
+  adc_oneshot_unit_handle_t   adc1_handle;
+  adc_oneshot_unit_init_cfg_t init_config1 = { .unit_id = ADC_UNIT_1 };
+
+  ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config1, &adc1_handle));
+
+  //-------------ADC1 Config---------------//
+  adc_oneshot_chan_cfg_t config = {
+      .atten    = ADC_ATTEN_DB_12,
+      .bitwidth = ADC_BITWIDTH_12, // ADC_BITWIDTH_DEFAULT 
+  };
+  ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, BAT_ADC_CHAN, &config));
+
+  //-------------ADC1 Calibration Init---------------//
+  adc_cali_handle_t adc1_cali_chan0_handle = NULL;
+  adc_cali_line_fitting_config_t cali_config = {
+      .unit_id  = init_config1.unit_id,
+      .atten    = config.atten,
+      .bitwidth = config.bitwidth,
+      .default_vref = 1100,
+  };
+
+#if DEBUG_LEVEL >= 1
+  adc_cali_line_fitting_efuse_val_t val_type;
+  
+  ESP_ERROR_CHECK(adc_cali_scheme_line_fitting_check_efuse(&val_type));
+
+  if (val_type == ADC_CALI_LINE_FITTING_EFUSE_VAL_EFUSE_VREF)
+  {
+    Serial.println("[debug] ADC Cal eFuse Vref");
+  }
+  else if (val_type == ADC_CALI_LINE_FITTING_EFUSE_VAL_EFUSE_TP )
+  {
+    Serial.println("[debug] ADC Cal Two Point");
+  }
+  else
+  {
+    Serial.println("[debug] ADC Cal Default");
+  }
+#endif
+
+  ESP_ERROR_CHECK(adc_cali_create_scheme_line_fitting(&cali_config, &adc1_cali_chan0_handle));
+
+  //-------------ADC1 Read ---------------//
+  ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, BAT_ADC_CHAN, &adc_raw[0][0]));
+  //Serial.printf("ADC%d Channel[%d] Raw Data: %d\n", init_config1.unit_id + 1, BAT_ADC_CHAN, adc_raw[0][0]);
+
+  ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_chan0_handle, adc_raw[0][0], &voltage[0][0]));
+  //Serial.printf("ADC%d Channel[%d] Cali Voltage: %d mV\n", init_config1.unit_id + 1, BAT_ADC_CHAN, voltage[0][0]);
+
+  //Tear Down
+  ESP_ERROR_CHECK(adc_oneshot_del_unit(adc1_handle));
+  ESP_ERROR_CHECK(adc_cali_delete_scheme_line_fitting(adc1_cali_chan0_handle));
+
+  // DFRobot FireBeetle Esp32-E V1.0 voltage divider (1M+1M), so readings are
+  // multiplied by 2.
+  uint32_t batteryVoltage = voltage[0][0] * 2;
+
+  //Serial.printf("BTY = %ld (%d-%d)\n", batteryVoltage, adc_raw[0][0], voltage[0][0]);
+
+#endif
+
   return batteryVoltage;
 } // end readBatteryVoltage
 
@@ -373,181 +465,6 @@ const char *getUVIdesc(unsigned int uvi)
     return TXT_UV_EXTREME;
   }
 } // end getUVIdesc
-
-#ifdef REMOVED
-/*
- *   co    μg/m^3, Carbon Monoxide (CO)               1 ppb = 1.1456 μg/m^3
- *   nh3   μg/m^3, Ammonia (NH3)                      1 ppb = 0.6966 μg/m^3
- *   no    μg/m^3, Nitric Oxide (NO)                  1 ppb = 1.2274 μg/m^3
- *   no2   μg/m^3, Nitrogen Dioxide (NO2)             1 ppb = 1.8816 μg/m^3
- *   o3    μg/m^3, Ozone (O3)                         1 ppb = 1.9632 μg/m^3
- *   pb    μg/m^3, Lead (Pb)                          1 ppb = 1.9632 μg/m^3
- *   so2   μg/m^3, Sulfur Dioxide (SO2)               1 ppb = 8.4744 μg/m^3
- *   pm10  μg/m^3, Coarse Particulate Matter (<10μm)
- *   pm2_5 μg/m^3, Fine Particulate Matter (<2.5μm)
- */
-/* Returns the average pollutant concentration over a given number of previous
- * hours.
- *
- * hours must be a positive integer
- */
-float getAvgConc(const float pollutant[], int hours)
-{
-  float avg = 0;
-  // index (OWM_NUM_AIR_POLLUTION - 1) is most recent hourly concentration
-  for (int h = (OWM_NUM_AIR_POLLUTION - 1) - (hours - 1)
-       ; h < OWM_NUM_AIR_POLLUTION
-       ; ++h)
-  {
-    avg += pollutant[h];
-  }
-
-  avg = avg / static_cast<float>(hours);
-  return avg;
-}
-
-/* Returns the aqi for the given AQI and the selected AQI scale(defined in
- * config.h)
- */
-int getAQI(const owm_resp_air_pollution_t &p)
-{
-#ifdef AUSTRALIA_AQI
-  float co_8h     = getAvgConc(p.components.co,     8);
-  float no2_1h    = getAvgConc(p.components.no2,    1);
-  float o3_1h     = getAvgConc(p.components.o3,     1);
-  float o3_4h     = getAvgConc(p.components.o3,     4);
-  float so2_1h    = getAvgConc(p.components.so2,    1);
-  float pm10_24h  = getAvgConc(p.components.pm10,  24);
-  float pm2_5_24h = getAvgConc(p.components.pm2_5, 24);
-  return australia_aqi(co_8h, no2_1h, o3_1h, o3_4h, so2_1h, pm10_24h,
-                       pm2_5_24h);
-#endif // end AUSTRALIA_AQI
-#ifdef CANADA_AQHI
-  float no2_3h    = getAvgConc(p.components.no2,    3);
-  float o3_3h     = getAvgConc(p.components.o3,     3);
-  float pm2_5_3h  = getAvgConc(p.components.pm2_5,  3);
-  return canada_aqhi(no2_3h, o3_3h, pm2_5_3h);
-#endif // end CANADA_AQHI
-#ifdef EUROPE_CAQI
-  float no2_1h    = getAvgConc(p.components.no2,    1);
-  float o3_1h     = getAvgConc(p.components.o3,     1);
-  float pm10_1h   = getAvgConc(p.components.pm10,   1);
-  float pm2_5_1h  = getAvgConc(p.components.pm2_5,  1);
-  return europe_caqi(no2_1h, o3_1h, pm10_1h, pm2_5_1h);
-#endif // end EUROPE_CAQI
-#ifdef HONG_KONG_AQHI
-  float no2_3h    = getAvgConc(p.components.no2,    3);
-  float o3_3h     = getAvgConc(p.components.o3,     3);
-  float so2_3h    = getAvgConc(p.components.so2,    3);
-  float pm10_3h   = getAvgConc(p.components.pm10,   3);
-  float pm2_5_3h  = getAvgConc(p.components.pm2_5,  3);
-  return hong_kong_aqhi(no2_3h,  o3_3h, so2_3h, pm10_3h, pm2_5_3h);
-#endif // end HONG_KONG_AQHI
-#ifdef INDIA_AQI
-  float co_8h     = getAvgConc(p.components.co,     8);
-  float nh3_24h   = getAvgConc(p.components.nh3,   24);
-  float no2_24h   = getAvgConc(p.components.no2,   24);
-  float o3_8h     = getAvgConc(p.components.o3,     8);
-  float pb_24h    = 0; // OpenWeatherMap does not report pb concentration
-  float so2_24h   = getAvgConc(p.components.so2,   24);
-  float pm10_24h  = getAvgConc(p.components.pm10,  24);
-  float pm2_5_24h = getAvgConc(p.components.pm2_5, 24);
-  return india_aqi(co_8h, nh3_24h, no2_24h, o3_8h, pb_24h, so2_24h, pm10_24h,
-                   pm2_5_24h);
-#endif // end INDIA_AQI
-#ifdef MAINLAND_CHINA_AQI
-  float co_1h     = getAvgConc(p.components.co,     1);
-  float co_24h    = getAvgConc(p.components.co,    24);
-  float no2_1h    = getAvgConc(p.components.no2,    1);
-  float no2_24h   = getAvgConc(p.components.no2,   24);
-  float o3_1h     = getAvgConc(p.components.o3,     1);
-  float o3_8h     = getAvgConc(p.components.o3,     8);
-  float so2_1h    = getAvgConc(p.components.so2,    1);
-  float so2_24h   = getAvgConc(p.components.so2,   24);
-  float pm10_24h  = getAvgConc(p.components.pm10,  24);
-  float pm2_5_24h = getAvgConc(p.components.pm2_5, 24);
-  return mainland_china_aqi(co_1h, co_24h, no2_1h, no2_24h, o3_1h, o3_8h,
-                            so2_1h, so2_24h, pm10_24h, pm2_5_24h);
-#endif // end MAINLAND_CHINA_AQI
-#ifdef SINGAPORE_PSI
-  float co_8h     = getAvgConc(p.components.co,     8);
-  float no2_1h    = getAvgConc(p.components.no2,    1);
-  float o3_1h     = getAvgConc(p.components.o3,     1);
-  float o3_8h     = getAvgConc(p.components.o3,     8);
-  float so2_24h   = getAvgConc(p.components.so2,   24);
-  float pm10_24h  = getAvgConc(p.components.pm10,  24);
-  float pm2_5_24h = getAvgConc(p.components.pm2_5, 24);
-  return singapore_psi(co_8h, no2_1h, o3_1h, o3_8h, so2_24h, pm10_24h,
-                       pm2_5_24h);
-#endif // end SINGAPORE_PSI
-#ifdef SOUTH_KOREA_CAI
-  float co_1h     = getAvgConc(p.components.co,     1);
-  float no2_1h    = getAvgConc(p.components.no2,    1);
-  float o3_1h     = getAvgConc(p.components.o3,     1);
-  float so2_1h    = getAvgConc(p.components.so2,    1);
-  float pm10_24h  = getAvgConc(p.components.pm10,  24);
-  float pm2_5_24h = getAvgConc(p.components.pm2_5, 24);
-  return south_korea_cai(co_1h, no2_1h, o3_1h, so2_1h, pm10_24h, pm2_5_24h);
-#endif // end SOUTH_KOREA_CAI
-#ifdef UNITED_KINGDOM_DAQI
-  float no2_1h    = getAvgConc(p.components.no2,    1);
-  float o3_8h     = getAvgConc(p.components.o3,     8);
-  float so2_15min = getAvgConc(p.components.so2,    1); // OWM only gives hourly
-  float pm10_24h  = getAvgConc(p.components.pm10,  24);
-  float pm2_5_24h = getAvgConc(p.components.pm2_5, 24);
-  return united_kingdom_daqi(no2_1h, o3_8h, so2_15min, pm10_24h, pm2_5_24h);
-#endif // end UNITED_KINGDOM_DAQI
-#ifdef UNITED_STATES_AQI
-  float co_8h     = getAvgConc(p.components.co,     8);
-  float no2_1h    = getAvgConc(p.components.no2,    1);
-  float o3_1h     = getAvgConc(p.components.o3,     1);
-  float o3_8h     = getAvgConc(p.components.o3,     8);
-  float so2_1h    = getAvgConc(p.components.so2,    1);
-  float so2_24h   = getAvgConc(p.components.so2,   24);
-  float pm10_24h  = getAvgConc(p.components.pm10,  24);
-  float pm2_5_24h = getAvgConc(p.components.pm2_5, 24);
-  return united_states_aqi(co_8h, no2_1h, o3_1h, o3_8h, so2_1h, so2_24h,
-                           pm10_24h, pm2_5_24h);
-#endif // end UNITED_STATES_AQI
-} // end getAQI
-
-/* Returns the descriptor text for the given AQI and the selected AQI
- * scale(defined in config.h)
- */
-const char *getAQIdesc(int aqi)
-{
-#ifdef AUSTRALIA_AQI
-  return australia_aqi_desc(      aqi);
-#endif // end AUSTRALIA_AQI
-#ifdef CANADA_AQHI
-  return canada_aqhi_desc(        aqi);
-#endif // end CANADA_AQHI
-#ifdef EUROPE_CAQI
-  return europe_caqi_desc(        aqi);
-#endif // end EUROPE_CAQI
-#ifdef HONG_KONG_AQHI
-  return hong_kong_aqhi_desc(     aqi);
-#endif // end HONG_KONG_AQHI
-#ifdef INDIA_AQI
-  return india_aqi_desc(          aqi);
-#endif // end INDIA_AQI
-#ifdef MAINLAND_CHINA_AQI
-  return mainland_china_aqi_desc( aqi);
-#endif // end MAINLAND_CHINA_AQI
-#ifdef SINGAPORE_PSI
-  return singapore_psi_desc(      aqi);
-#endif // end SINGAPORE_PSI
-#ifdef SOUTH_KOREA_CAI
-  return south_korea_cai_desc(    aqi);
-#endif // end SOUTH_KOREA_CAI
-#ifdef UNITED_KINGDOM_DAQI
-  return united_kingdom_daqi_desc(aqi);
-#endif // end UNITED_KINGDOM_DAQI
-#ifdef UNITED_STATES_AQI
-  return united_states_aqi_desc(  aqi);
-#endif // end UNITED_STATES_AQI
-} // end getAQIdesc
-#endif // REMOVED
 
 /* Returns the wifi signal strength descriptor text for the given RSSI.
  */

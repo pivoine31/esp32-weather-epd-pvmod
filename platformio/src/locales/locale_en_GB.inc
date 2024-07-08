@@ -46,10 +46,14 @@ const String W_KEY          = "Key";
 const String W_POPTHR       = "POP threshold";
 const String W_BEDTIM       = "Bed time";
 const String W_WAKTIM       = "Wake time";
-const String W_SLPDLY       = "Update intervalle";
+const String W_SLPDLY       = "Update interval";
 const String W_HOURNB       = "Graph size";
 const String W_MAJMIN       = "Min update interval";
 const String W_WEBDLY       = "Max serveur lifetime";
+const String W_HTO          = "OWM request timeout";
+const String W_WATO         = "Wifi per AP timeout";
+const String W_WGTO         = "Wifi global timeout";
+const String W_WTOREC       = "Recom: (Wifi global TO) >= (Per AP TO) * (AP number)";
 #endif
 
 // LC_TIME

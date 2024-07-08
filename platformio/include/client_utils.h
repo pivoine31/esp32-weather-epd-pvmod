@@ -61,7 +61,7 @@ extern unsigned long startTime;
 void drawWebIcon     ( int active );
 #endif //WEB_SVR
 
-wl_status_t startWiFi(int &wifiRSSI);
+wl_status_t startWiFi(int &wifiRSSI, int web_mode);
 void        killWiFi();
 
 #ifdef USE_HTTP

@@ -53,6 +53,10 @@ extern const String W_SLPDLY;
 extern const String W_HOURNB;
 extern const String W_MAJMIN;
 extern const String W_WEBDLY;
+extern const String W_HTO;
+extern const String W_WATO;
+extern const String W_WGTO;
+extern const String W_WTOREC;
 #endif
 
 // LC_TIME

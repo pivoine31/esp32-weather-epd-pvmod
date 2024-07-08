@@ -15,8 +15,14 @@ Others alternatives are:
 - using a touch pin connected to a metallic thing accessible from the outside (probably the best alternative when the internal button is not accessible)
 - using a custom button other than the internal one (connected with a pullup resistor to the esp32)
 
-If not interested by the Web server, there is a custom option in config.h to disable it
-Doing this, you may still enable the "automatic pop switch", and the "pop and vol" features
+If not interested by the Web server, there is a custom option in config.h to disable it (comment or #undef WEB_SVR)
+Doing this, the "automatic pop switch" and the "pop and vol" features are still available
+
+Concerning the Wifi credential and the location :
+- if Web server is not used, the location (DEFLAT / DEFLON / DEFCITY) and one credential (WIFI_SSI1 / WIFI_PWD1) needs to be defined (in the section "WEB SERVER NOT USED")
+- if Web server is used, default value for the location (DEFLAT / DEFLON / DEFCITY) and the credential (WIFI_SSI1 / WIFI_PWD1) may be either left empty, or may be defined (in the section "WEB SERVER USED")
+If any (wifi/location) value is defined, it is used as a default value: it is setup initially in first (wifi/location) entry and reinstated every time the parameters are reset
+When no Wifi network is available, the weather station acts as an Access Point (SSID "ESP32-Meteo", password ""ESP32-Meteo"); the Web server is acceeded in this case at address 192.168.4.1 in HTTP mode)
 
 This software remix does no longer need tuning the TIMEZONE and using NTP for time synchronization since the OWM service responses provides both the time information and the time offset relative to GMT based on the selected geographic location (lat/lon)
 

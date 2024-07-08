@@ -205,9 +205,7 @@ esp_sleep_wakeup_cause_t print_wakeup_reason()
  */
 void setup()
 {
-#ifdef WEB_SVR
-  int manual_wakeup;
-#endif
+  int manual_wakeup = 0;
 
   actionTime = startTime = millis();
   Serial.begin(115200);
@@ -304,29 +302,56 @@ void setup()
 
   // START WIFI
   int wifiRSSI = 0; // Received Signal Strength Indicator
-  wl_status_t wifiStatus = startWiFi(wifiRSSI);
+  wl_status_t wifiStatus = startWiFi(wifiRSSI, manual_wakeup);
   if (wifiStatus != WL_CONNECTED)
   { // WiFi Connection Failed
-    killWiFi();
     initDisplay(0);
+
     if (wifiStatus == WL_NO_SSID_AVAIL)
     {
       Serial.println(TXT_NETWORK_NOT_AVAILABLE);
       do
       {
+#ifdef WEB_SVR
+        if ( manual_wakeup )
+          // Draw Web (AP) symbol in upper left corner
+          drawWebIcon(2);
+#endif
         drawError(wifi_x_196x196, TXT_NETWORK_NOT_AVAILABLE);
-      } while (display.nextPage());
+      }
+      while (display.nextPage());
     }
     else
     {
       Serial.println(TXT_WIFI_CONNECTION_FAILED);
       do
       {
+#ifdef WEB_SVR
+        if ( manual_wakeup )
+          // Draw Web (AP) symbol in upper left corner
+          drawWebIcon(2);
+#endif
         drawError(wifi_x_196x196, TXT_WIFI_CONNECTION_FAILED);
-      } while (display.nextPage());
+      }
+      while (display.nextPage());
     }
-    powerOffDisplay();
-    beginDeepSleep(startTime, &timeInfo);
+
+#ifdef WEB_SVR
+    if ( manual_wakeup )
+    { // Waked-up by Web button ; start Web server using local Wifi AP
+      pinMode(GPIO_NUM_27, INPUT_PULLUP);
+
+      // Start Web serveur and exit setup
+      web_svr_setup();
+      return;
+    }
+    else
+#endif
+    { // Not waked-up by Web button
+      killWiFi();
+      powerOffDisplay();
+      beginDeepSleep(startTime, &timeInfo);
+    }
   }
 
   /* AUTO_TZ no need for time synchronisation */
@@ -369,7 +394,10 @@ void setup()
     powerOffDisplay();
     beginDeepSleep(startTime, &timeInfo);
   }
-  killWiFi(); // WiFi no longer needed
+#ifdef WEB_SVR
+  if ( !manual_wakeup )
+    killWiFi(); // WiFi no longer needed
+#endif
 
   // GET INDOOR TEMPERATURE AND HUMIDITY, start BME280...
   pinMode(PIN_BME_PWR, OUTPUT);
@@ -437,7 +465,7 @@ void setup()
 
 #ifdef WEB_SVR
     if ( manual_wakeup )
-      // Draw Web symbol in upper left corner
+      // Draw Web (Internet) symbol in upper left corner
       drawWebIcon(1);
 #endif
   }
@@ -479,7 +507,7 @@ void loop()
   
   tm  timeInfo = {};
 
-  wifi_check();  // WIFI_MULTI
+  //wifi_check();  // WIFI_MULTI
 
 #ifdef BUTTON_PIN
   // Avoid checking button too early after manual wakeup
@@ -532,7 +560,7 @@ void loop()
     beginDeepSleep(startTime, &timeInfo);
   }
 
-  delay(1000);
+  delay(500);
 
 #endif // WEB_SVR
 } // end loop
