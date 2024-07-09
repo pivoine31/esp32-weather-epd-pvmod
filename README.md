@@ -30,10 +30,9 @@ Once the Web server is started, a specific icon is displayed in the upper left c
 
 The Web server terminates itself after 3 min without activity (by default), when the button is pressed again, or through "exit" on Web pages
 
-When no Wifi network is available, the weather station acts as an Access Point (SSID "ESP32-Meteo", password ""ESP32-Meteo"); the Web server is acceeded in this case at address 192.168.4.1 in HTTP mode
+When no Wifi network is available, the weather station acts as an Access Point (SSID "ESP32-Meteo", password "Weather.32"); the Web server is acceeded in this case at address 192.168.4.1 in HTTP mode
 
-If not interested by the Web server, there is a custom option in config.h to disable it (#undef WEB_SVR, or remove, or comment)
-Doing this, you may still enable the "automatic pop switch", and the "pop and vol" features
+If not interested by the Web server, there is a custom option in config.h to disable it (#undef WEB_SVR, or remove, or comment). Doing this, you may still enable the "automatic pop switch", and the "pop and vol" features
 
 This software remix does no longer need tuning the TIMEZONE and using NTP for time synchronization since the OWM service responses provides both the time information and the time offset relative to GMT based on the selected geographic location (lat/lon)
 
