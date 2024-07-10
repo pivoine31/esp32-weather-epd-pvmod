@@ -5,8 +5,7 @@ Based on https://github.com/lmarzen/esp32-weather-epd (source code retrieved on 
 This repository contains an update of the Luke Marzen ESP32 Weather station software, adding some interesting features:
 - Wi-Fi handling several networks / credentials
 - Embedded Web server (for managing Wi-Fi credentials, Geographic locations for displaying weather, weather station general parameters)
-- Automatic switching of the precipitation display pattern to avoid the contrast problem (the threshold may be modified trough the Web pages)
-  The contrast modification in itself was submitted by dwuhls on issue #62 "eink display loses contrast on days with high PoP"
+- Automatic switching of the precipitation display pattern to avoid the contrast problem (the threshold may be modified trough the Web pages). The contrast modification in itself was submitted by dwuhls on issue #62 "eink display loses contrast on days with high PoP"
 - A feature named POP_AND_VOL that allows displaying simultaneously the probability of precipitations and the volume of precipitations (hourly and daily)
 
 In the modified code, most of the customization options are moved to config.h
@@ -17,7 +16,7 @@ Others alternatives are:
 - using a touch pin connected to a metallic thing accessible from the outside (probably the best alternative when the internal button is not accessible)
 - using a custom button other than the internal one (connected with a pullup resistor to the esp32)
 
-If not interested by the Web server, there is a custom option in config.h to disable it (comment or #undef WEB_SVR)
+If not interested by the Web server, there is a custom option in config.h to disable it (comment or #undef WEB_SVR).
 Doing this, the "automatic pop switch" and the "pop and vol" features are still available
 
 Concerning the Wifi credential and the location :
