@@ -36,3 +36,5 @@ If not interested by the Web server, there is a custom option in config.h to dis
 This software remix does no longer need tuning the TIMEZONE and using NTP for time synchronization since the OWM service responses provides both the time information and the time offset relative to GMT based on the selected geographic location (lat/lon)
 
 Otherwise, config.h may be customized as usual, relying on the indications found in comments
+
+Last word: the URL https://www.printables.com/fr/model/929910-esp32-weather-base-remix-and-lmarzen-modified-soft provides a box remix compatible with the use of the internal FireBeetle button 
