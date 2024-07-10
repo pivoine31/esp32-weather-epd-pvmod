@@ -30,6 +30,7 @@ fi
 
 mkdir -p icons
 mkdir -p pne
+mkdir -p svg
 
 SVG_FILES="`ls ./svg/*.svg 2>/dev/null`"
 # SVG_FILES="./svg/*.svg"
