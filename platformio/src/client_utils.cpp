@@ -1374,9 +1374,9 @@ void killWiFi()
  * Returns the HTTP Status Code.
  */
 #ifdef USE_HTTP
-  int getOWMairpollution(WiFiClient &client, owm_resp_air_pollution_t &r)
+  int getOWMairpollution(WiFiClient &client, owm_resp_air_pollution_t &r, int64_t curdt) // AUTO_TZ
 #else
-  int getOWMairpollution(WiFiClientSecure &client, owm_resp_air_pollution_t &r)
+  int getOWMairpollution(WiFiClientSecure &client, owm_resp_air_pollution_t &r, int64_t curdt) // AUTO_TZ
 #endif
 {
   int attempts = 0;
@@ -1385,8 +1385,7 @@ void killWiFi()
 
   // set start and end to appropriate values so that the last 24 hours of air
   // pollution history is returned. Unix, UTC.
-  time_t now;
-  int64_t end = time(&now);
+  int64_t end = curdt; // AUTO_TZ
   // minus 1 is important here, otherwise we could get an extra hour of history
   int64_t start = end - ((3600 * OWM_NUM_AIR_POLLUTION) - 1);
   char endStr[22];
