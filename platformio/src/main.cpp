@@ -380,7 +380,7 @@ void setup()
     powerOffDisplay();
     beginDeepSleep(startTime, &timeInfo);
   }
-  rxStatus = getOWMairpollution(client, owm_air_pollution);
+  rxStatus = getOWMairpollution(client, owm_air_pollution, owm_onecall.current.dt); /* AUTO_TZ */
   if (rxStatus != HTTP_CODE_OK)
   {
     killWiFi();
