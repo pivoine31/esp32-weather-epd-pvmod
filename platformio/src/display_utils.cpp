@@ -88,7 +88,9 @@ uint32_t readBatteryVoltage()
   uint32_t batteryVoltage = esp_adc_cal_raw_to_voltage(adc_val, &adc_chars);
   // DFRobot FireBeetle Esp32-E V1.0 voltage divider (1M+1M), so readings are
   // multiplied by 2.
-  batteryVoltage *= 2;
+  batteryVoltage *= 1.95; //You will need to change this depending on the voltage that you read from your battery with a mutimeter.
+  //For me, the fire beetle read a 0.1V too high, which could kill a lipo battery...
+  //If the firebeetle is reading too high, decrese this value, if its displaying too low, increse it. (defaults at 2)
 
 #else
 

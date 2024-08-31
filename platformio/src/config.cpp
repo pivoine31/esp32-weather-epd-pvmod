@@ -130,10 +130,10 @@ const int HOURLY_GRAPH_MAX = DEFHOURNB;
 // the esp32 will hibernate and a manual press of the reset (RST) button to
 // begin operating again.
 const uint32_t MAX_BATTERY_VOLTAGE      = 4200; // (millivolts)
-const uint32_t WARN_BATTERY_VOLTAGE     = 3400; // (millivolts)
-const uint32_t LOW_BATTERY_VOLTAGE      = 3200; // (millivolts)
-const uint32_t VERY_LOW_BATTERY_VOLTAGE = 3100; // (millivolts)
-const uint32_t CRIT_LOW_BATTERY_VOLTAGE = 3000; // (millivolts)
+const uint32_t WARN_BATTERY_VOLTAGE     = 3750; // (millivolts)
+const uint32_t LOW_BATTERY_VOLTAGE      = 3700; // (millivolts)
+const uint32_t VERY_LOW_BATTERY_VOLTAGE = 3650; // (millivolts)
+const uint32_t CRIT_LOW_BATTERY_VOLTAGE = 3600; // (millivolts)
 const unsigned long LOW_BATTERY_SLEEP_INTERVAL      = 30;  // (minutes)
 const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL = 120; // (minutes)
 
