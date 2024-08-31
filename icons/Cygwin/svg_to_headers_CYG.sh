@@ -19,17 +19,28 @@
 # inkscape and python3 installed
 # usage :
 # First argument : size of icons to generate
-# Original file in ./svg or ./png (raw name without size in dots)
+# Original file in ./svg or ./pne (raw name without size in dots)
 # Resulting file in .icons (name indicates resolution)
 
-mkdir -p icons
-mkdir -p png
+if [ $# -lt 1 ]
+then
+  echo "Usage : $0 <resolution>"
+  exit 1
+fi
 
-SVG_FILES="./svg/*.svg"
+mkdir -p icons
+mkdir -p pne
+mkdir -p svg
+
+SVG_FILES="`ls ./svg/*.svg 2>/dev/null`"
+# SVG_FILES="./svg/*.svg"
 PNG_PATH="./pne/${1}x${1}"
-PNG_FILES="${PNG_PATH}/*.png"
+PNG_FILES="`ls ${PNG_PATH}/*.png 2>/dev/null`"
+#PNG_FILES="${PNG_PATH}/*.png"
 HEADER_PATH="./icons/${1}x${1}"
 HEADER="./icons/icons_${1}x${1}.h"
+
+ls ${PNG_PATH}/*.png
 
 echo "Cleaning old files..."
 #if [ -e "$PNG_PATH" ];then rm -rf "$PNG_PATH" ; fi
@@ -41,7 +52,7 @@ if [ -e "$HEADER" ];then rm "$HEADER" ; fi
 
 # arguments 1($1) determines the resolution of the output images
 # IMAGES MUST HAVE A TOTAL NUMBER OF PIXELS THAT IS DIVISIBLE BY 8
-# For sqaure images:
+# For square images:
 # x = original dimension of icon
 # y = desired dimension of icon
 # z = density
@@ -49,27 +60,33 @@ if [ -e "$HEADER" ];then rm "$HEADER" ; fi
 # ImageMagick default density is 96
 # z = 96 * y / (0.25 * x)
 
-for f in $SVG_FILES
-do
-  echo "Converting .svg to .png for $f..."
+if [ "$SVG_FILES" ]
+then
+  for f in $SVG_FILES
+  do
+    echo "Converting .svg to .png for $f..."
 
-  # use mogrify to convert to png
-  # SVG_SIZE=$(identify -format '%w' $f)
-  # DENSITY=$(bc -l <<< "96 * $1 / $SVG_SIZE")
-  # mogrify -format png -path $PNG_PATH -colorspace sRGB -density $DENSITY $f
+    # use mogrify to convert to png
+    # SVG_SIZE=$(identify -format '%w' $f)
+    # DENSITY=$(bc -l <<< "96 * $1 / $SVG_SIZE")
+    # mogrify -format png -path $PNG_PATH -colorspace sRGB -density $DENSITY $f
 
-  # using inkscape to convert to png because mogrify was being troublesome
-  out="$PNG_PATH/$(basename $f .svg).png"
-  #inkscape -w ${1} -h ${1} $f -o $out --export-background="#ffffff"
-  inkscape -w ${1} -h ${1} $f -e $out --export-background="#ffffff"
-done
+    # using inkscape to convert to png because mogrify was being troublesome
+    out="$PNG_PATH/$(basename $f .svg).png"
+    #inkscape -w ${1} -h ${1} $f -o $out --export-background="#ffffff"
+    inkscape -w ${1} -h ${1} $f -e $out --export-background="#ffffff"
+  done
+fi
 
-for f in $PNG_FILES
-do
-  echo "Generating header for $f..."
-  out="${HEADER_PATH}/$(basename $f .png | tr -s -c [:alnum:] _)${1}x${1}.h"
-  python3 png_to_header.py -i $f -o $out
-done
+if [ "$PNG_FILES" ]
+then
+  for f in $PNG_FILES
+  do
+    echo "Generating header for $f..."
+    out="${HEADER_PATH}/$(basename $f .png | tr -s -c [:alnum:] _)${1}x${1}.h"
+    python3 png_to_header.py -i $f -o $out
+  done
+fi
 
 echo "Generating include statements..."
 echo "#ifndef __ICONS_${1}x${1}_H__" > $HEADER
@@ -81,3 +98,4 @@ done
 echo "#endif" >> $HEADER
 
 echo "Done."
+exit 0
