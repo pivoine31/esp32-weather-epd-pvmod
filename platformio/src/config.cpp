@@ -129,6 +129,8 @@ const int HOURLY_GRAPH_MAX = DEFHOURNB;
 // minutes). Once the battery voltage has fallen to CRIT_LOW_BATTERY_VOLTAGE,
 // the esp32 will hibernate and a manual press of the reset (RST) button to
 // begin operating again.
+// [asdf1qaz contribution] modify the threshold to never fall under 3.5V
+// (see https://oscarliang.com/wp-content/uploads/2017/02/Lipo-battery-guide-Voltage-vs-capacity-used-percentage.jpg)
 const uint32_t MAX_BATTERY_VOLTAGE      = 4200; // (millivolts)
 const uint32_t WARN_BATTERY_VOLTAGE     = 3750; // (millivolts)
 const uint32_t LOW_BATTERY_VOLTAGE      = 3700; // (millivolts)
