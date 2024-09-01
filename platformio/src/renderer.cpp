@@ -1220,7 +1220,7 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
   }
 #endif
 
- /* AUTO_POP_CONTRAST */
+  /* AUTO_POP_CONTRAST */
   precipValTotMax = precipBoundMax * HOURLY_GRAPH_MAX;
   //Serial.printf("POP: ValToT=%f, ValMax=%f, BoundMax=%f\n", precipValTot, precipValTotMax, precipBoundMax);
   if ( precipValTotMax )
@@ -1239,7 +1239,7 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
 #endif // WEB_SVR
 
   Serial.println("Precipitation graph step = " + String(pop_step));
- /* AUTO_POP_CONTRAST */
+  /* AUTO_POP_CONTRAST */
 
   // draw x axis
   display.drawLine(xPos0, yPos1    , xPos1, yPos1    , GxEPD_BLACK);
@@ -1412,6 +1412,7 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
 
     // graph Precipitation
     /* AUTO_POP_CONTRAST */
+    // Contribution of Dwuhls (solution to issue #62 on L Marzen Github)
     for (int y = y1_t - 1; y > y0_t; y -= pop_step)
     {
       for (int x = x0_t; x < x1_t; x += 1)
