@@ -86,11 +86,11 @@ uint32_t readBatteryVoltage()
 #endif
 
   uint32_t batteryVoltage = esp_adc_cal_raw_to_voltage(adc_val, &adc_chars);
-  // DFRobot FireBeetle Esp32-E V1.0 voltage divider (1M+1M), so readings are
-  // multiplied by 2.
-  batteryVoltage *= 1.95; //You will need to change this depending on the voltage that you read from your battery with a mutimeter.
-  //For me, the fire beetle read a 0.1V too high, which could kill a lipo battery...
-  //If the firebeetle is reading too high, decrese this value, if its displaying too low, increse it. (defaults at 2)
+  // [Asdf1qaz contribution]
+  // Take into account DFRobot FireBeetle Esp32-E V1.0 voltage divider
+  // Divider may be adjusted slighly (in config.h) to take into account 
+  // some correction after checking the battery voltage using a multimeter
+  batteryVoltage *= VOLT_MULT;
 
 #else
 
@@ -161,9 +161,11 @@ uint32_t readBatteryVoltage()
   ESP_ERROR_CHECK(adc_oneshot_del_unit(adc1_handle));
   ESP_ERROR_CHECK(adc_cali_delete_scheme_line_fitting(adc1_cali_chan0_handle));
 
-  // DFRobot FireBeetle Esp32-E V1.0 voltage divider (1M+1M), so readings are
-  // multiplied by 2.
-  uint32_t batteryVoltage = voltage[0][0] * 2;
+  // [Asdf1qaz contribution]
+  // Take into account DFRobot FireBeetle Esp32-E V1.0 voltage divider
+  // Divider may be adjusted slighly (in config.h) to take into account 
+  // some correction after checking the battery voltage using a multimeter
+  uint32_t batteryVoltage = (uint32_t)(voltage[0][0] * VOLT_MULT);
 
   //Serial.printf("BTY = %ld (%d-%d)\n", batteryVoltage, adc_raw[0][0], voltage[0][0]);
 

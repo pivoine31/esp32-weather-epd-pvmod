@@ -231,6 +231,16 @@ extern unsigned long startTime;
 //   -258 Deserialization Incomplete Input
 #define DEF_HTTP_TIMEOUT 10000
 
+//
+// [Asdf1qaz contribution]
+// Voltage multiplier to take into account the internal
+// DFRobot FireBeetle Esp32-E V1.0 voltage divider
+// You may need to change this depending on the voltage read from your battery with a mutimeter
+// If the firebeetle is reading too high, decrese this value,
+// if its displaying too low, increase it (defaults at 2.00)
+//
+#define VOLT_MULT 2.00
+
 // E-PAPER PANEL
 // This project supports the following E-Paper panels:
 //   DISP_BW_V2 - 7.5in e-Paper (v2)      800x480px  Black/White
