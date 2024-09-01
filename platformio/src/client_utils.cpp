@@ -132,7 +132,7 @@ unsigned int  WifiAPto = DEF_AP_TIMEOUT;
 #define NM_WGT "WifiGLto"
 unsigned long WifiTimeout = DEF_WIFI_TIMEOUT;
 
-// WIFI global timeout
+// HTTP requests timeout
 #define NM_HTO "HttpTo"
 unsigned int  HttpTimeout = DEF_HTTP_TIMEOUT;
 
@@ -187,6 +187,7 @@ void clean_nvs ( void )
   preferences.putString(NM_MAT, String(MaxActTim));
   preferences.putString(NM_WAT, String(WifiAPto));
   preferences.putString(NM_WGT, String(WifiTimeout));
+  preferences.putString(NM_HTO, String(HttpTimeout));
 
   preferences.putString(NM_INIT, "yes");
 }
@@ -299,6 +300,8 @@ void retrieve_config ( void )
   WifiAPto = s.toInt();
   s = preferences.getString(NM_WGT, String(DEF_WIFI_TIMEOUT));
   WifiTimeout = s.toInt();
+  s = preferences.getString(NM_HTO, String(DEF_HTTP_TIMEOUT));
+  HttpTimeout = s.toInt();
 
   check_config();
 }
@@ -372,6 +375,8 @@ void reset_parm_config ( void )
   preferences.putString(NM_WAT, String(WifiAPto));
   WifiTimeout = DEF_WIFI_TIMEOUT;
   preferences.putString(NM_WGT, String(WifiTimeout));
+  HttpTimeout = DEF_HTTP_TIMEOUT;
+  preferences.putString(NM_HTO, String(HttpTimeout));
 }
 
 /*
@@ -974,7 +979,25 @@ void web_svr_setup ( void )
         preferences.putString(NM_MAT, s);
         Serial.printf("Min-Refresh: %d\n", MaxActTim);
       }
-      
+      if (request->hasParam(NM_WAT)) {
+        String s = request->getParam(NM_WAT)->value();
+        WifiAPto = s.toInt();
+        preferences.putString(NM_WAT, s);
+        Serial.printf("Wifi-AP-to: %d\n", WifiAPto);
+      }
+      if (request->hasParam(NM_WGT)) {
+        String s = request->getParam(NM_WGT)->value();
+        WifiTimeout = s.toInt();
+        preferences.putString(NM_WGT, s);
+        Serial.printf("Wifi-global-to: %ld\n", WifiTimeout);
+      }
+      if (request->hasParam(NM_HTO)) {
+        String s = request->getParam(NM_HTO)->value();
+        HttpTimeout = s.toInt();
+        preferences.putString(NM_HTO, s);
+        Serial.printf("Http-to: %d\n", HttpTimeout);
+      }
+
       if ( check_config() )
         request->send(200, "text/html", RSP_INVAL_PARM);
       else
@@ -1386,6 +1409,7 @@ void killWiFi()
   // set start and end to appropriate values so that the last 24 hours of air
   // pollution history is returned. Unix, UTC.
   int64_t end = curdt; // AUTO_TZ
+
   // minus 1 is important here, otherwise we could get an extra hour of history
   int64_t start = end - ((3600 * OWM_NUM_AIR_POLLUTION) - 1);
   char endStr[22];
