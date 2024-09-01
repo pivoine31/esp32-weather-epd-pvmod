@@ -7,6 +7,7 @@ This repository contains an update of the Luke Marzen ESP32 Weather station soft
 - Embedded Web server (for managing Wi-Fi credentials, Geographic locations for displaying weather, weather station general parameters)
 - A feature named POP_AND_VOL that allows displaying simultaneously the probability of precipitations and the volume of precipitations (hourly and daily)
 - [dwuhls contribution] Automatic switching of the precipitation display pattern to avoid the contrast problem (the threshold may be modified trough the Web pages). The contrast modification in itself was submitted by dwuhls on issue #62 "eink display loses contrast on days with high PoP"
+- [asdf1qaz contribution] reported AQI indication malfunction; now fixed
 - [asdf1qaz contribution] battery threshold (config.cpp) modified to increase lipo battery life
   (see https://oscarliang.com/wp-content/uploads/2017/02/Lipo-battery-guide-Voltage-vs-capacity-used-percentage.jpg for guidelines)
 - [asdf1qaz contribution] battery voltage multiplier made customizable in config.h to permit adjustement after multimeter check  
