@@ -49,6 +49,9 @@
   static const uint16_t OWM_PORT = 443;
 #endif
 
+// Report Error flag
+unsigned int  RerFlg = DEF_RER;
+
 #ifdef WEB_SVR
 /*****************************************************/
 /* WEB server management                             */
@@ -136,6 +139,10 @@ unsigned long WifiTimeout = DEF_WIFI_TIMEOUT;
 #define NM_HTO "HttpTo"
 unsigned int  HttpTimeout = DEF_HTTP_TIMEOUT;
 
+// Report Error flag
+#define NM_RER "ReportError"
+String RerChecked = "checked";  // Keep in sync wih DEF_RER
+
 // Init flag
 #define NM_INIT "Inited"
 
@@ -188,6 +195,7 @@ void clean_nvs ( void )
   preferences.putString(NM_WAT, String(WifiAPto));
   preferences.putString(NM_WGT, String(WifiTimeout));
   preferences.putString(NM_HTO, String(HttpTimeout));
+  preferences.putString(NM_RER, String(RerFlg));
 
   preferences.putString(NM_INIT, "yes");
 }
@@ -302,6 +310,11 @@ void retrieve_config ( void )
   WifiTimeout = s.toInt();
   s = preferences.getString(NM_HTO, String(DEF_HTTP_TIMEOUT));
   HttpTimeout = s.toInt();
+  s = preferences.getString(NM_RER, String(DEF_RER));
+  RerFlg = s.toInt();
+  RerChecked = (RerFlg) ? "checked" : "";
+
+  //Serial.printf("Retrieve RER : RerFlg=%d\n",RerFlg);
 
   check_config();
 }
@@ -377,6 +390,11 @@ void reset_parm_config ( void )
   preferences.putString(NM_WGT, String(WifiTimeout));
   HttpTimeout = DEF_HTTP_TIMEOUT;
   preferences.putString(NM_HTO, String(HttpTimeout));
+  RerFlg = DEF_RER;
+  RerChecked = (RerFlg) ? "checked" : "";
+  preferences.putString(NM_RER, String(RerFlg));
+
+  //Serial.printf("Reset RER : RerFlg=%d\n",RerFlg);
 }
 
 /*
@@ -921,6 +939,8 @@ void web_svr_setup ( void )
         "<input type=\"number\" class=\"num\" id=\"wgto\" name=\"" + NM_WGT + "\" value=\"" + String(WifiTimeout) + "\" >"
         "<label for=\"wgto\" class=\"l2\">msec</label><br><br>"
         "<label for=\"wgto\" class=\"l2\">" + W_WTOREC + "</label><br><br>"
+        "<label for=\"RerFlg\" class=\"l1\">" + W_RERFLG + "</label>"
+        "<input type=\"checkbox\" id=\"RerFlg\" name=\"" + NM_RER + "\" value=active " + RerChecked + "><br><br>"
         "<a href=\"/parm_reset\" class=\"rst\">"+W_REINITV+"</a>"
         "<a href=\"/weather\">"+W_PARMM+"</a><br><br>"
         "<a href=\"/wifi\">"+W_PARMW+"</a><br><br>"
@@ -928,6 +948,7 @@ void web_svr_setup ( void )
 	"</div>"
       "</form>"
       "</body></html>" );
+      //Serial.printf("Web page display RER : RerFlg=%d\n",RerFlg);
     }
     else
       page_lost(request);
@@ -997,6 +1018,19 @@ void web_svr_setup ( void )
         preferences.putString(NM_HTO, s);
         Serial.printf("Http-to: %d\n", HttpTimeout);
       }
+      if (request->hasParam(NM_RER)) {
+        //String s = request->getParam(NM_RER)->value();
+        RerFlg = 1;
+        RerChecked = "checked";
+      }
+      else
+      {
+        RerFlg = 0;
+        RerChecked = "";
+      }
+      //Serial.printf("Web page get RER : RerFlg=%d\n",RerFlg);
+      preferences.putString(NM_RER, String(RerFlg));
+      Serial.printf("Report-Error-flag: %d\n", RerFlg);
 
       if ( check_config() )
         request->send(200, "text/html", RSP_INVAL_PARM);
@@ -1066,7 +1100,8 @@ void web_svr_setup ( void )
       request->send(200, "text/html",
                     RSP_TERMACT1a_DONE+String((mintm+999)/1000)+RSP_TERMACT1b_DONE);
 
-      drawWebIcon(0);
+      if ( !SilentErr )
+        drawWebIcon(0);
 
       do_deep_sleep(mintm);
     }
@@ -1082,9 +1117,10 @@ void web_svr_setup ( void )
 
       request->send(200, "text/html", RSP_TERMACT2_DONE);
 
-      drawWebIcon(0);
+      if ( !SilentErr )
+        drawWebIcon(0);
 
-      beginDeepSleep(startTime, &timeInfo);
+      beginDeepSleep(&timeInfo);
     }
     else
       page_lost(request);

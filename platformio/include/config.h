@@ -41,9 +41,17 @@
 // Shall not exceed 15 characters
 #define HNAME "ESP32-Meteo"
 
+// Dayly temperature / precipitation enhancing
+// Increase font size to improve readability
+// (comment out with // to revert standard size)
+#define TEMP_FONT_ENH
+
 // Check and re-establish Wifi (web server mode)
 int wifi_check ( void );
 /* WIFI_MULTI */
+
+// Report Error Flag
+extern unsigned int  RerFlg;
 
 #ifdef WEB_SVR
 /*
@@ -152,7 +160,7 @@ extern unsigned int  HttpTimeout;
  */
 void restart_wdg     ( void );
 void do_deep_sleep   ( uint64_t );
-void beginDeepSleep  ( unsigned long &startTime, tm *timeInfo );
+void beginDeepSleep  ( tm *timeInfo );
 void drawWebIcon     ( int active );
 
 extern unsigned long startTime;
@@ -240,6 +248,12 @@ extern unsigned long startTime;
 // if its displaying too low, increase it (defaults at 2.00)
 //
 #define VOLT_MULT 2.00
+
+// Report Error flag:
+// 1 Display error screens (no wifi, request error)
+// 0 Do not display error screen (stay on last active display), except for battery warning (always displayed)
+//   This is useful when the Internet access is not permanent
+#define DEF_RER          1
 
 // E-PAPER PANEL
 // This project supports the following E-Paper panels:

@@ -37,7 +37,7 @@
   #include "cert.h"
 #endif
 
-// too large to allocate locally on stack
+// Too large to allocate locally on stack
 static owm_resp_onecall_t       owm_onecall;
 static owm_resp_air_pollution_t owm_air_pollution;
 
@@ -45,6 +45,10 @@ Preferences prefs;
 
 unsigned long startTime;
 unsigned long actionTime;
+
+// When set means Web server started but with no display update
+// (i.e. error while report-error flag disabled)
+int SilentErr = 0;
 
 /*
  * restart_wdg
@@ -90,7 +94,7 @@ void do_deep_sleep ( uint64_t sleepDuration )
  * Put esp32 into ultra low-power deep sleep (<11uA).
  * Aligns wake time to the minute. Sleep times defined in config.cpp.
  */
-void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
+void beginDeepSleep(tm *timeInfo)
 {
 #ifdef BEFORE_NEVER_CNX
 #else
@@ -304,37 +308,44 @@ void setup()
   int wifiRSSI = 0; // Received Signal Strength Indicator
   wl_status_t wifiStatus = startWiFi(wifiRSSI, manual_wakeup);
   if (wifiStatus != WL_CONNECTED)
-  { // WiFi Connection Failed
-    initDisplay(0);
-
-    if (wifiStatus == WL_NO_SSID_AVAIL)
+  {
+    // WiFi Connection Failed
+    if ( RerFlg )
     {
-      Serial.println(TXT_NETWORK_NOT_AVAILABLE);
-      do
+      // Report Error enabled
+      initDisplay(0);
+
+      if (wifiStatus == WL_NO_SSID_AVAIL)
       {
+        Serial.println(TXT_NETWORK_NOT_AVAILABLE);
+        do
+        {
 #ifdef WEB_SVR
-        if ( manual_wakeup )
-          // Draw Web (AP) symbol in upper left corner
-          drawWebIcon(2);
+          if ( manual_wakeup )
+            // Draw Web (AP) symbol in upper left corner
+            drawWebIcon(2);
 #endif
-        drawError(wifi_x_196x196, TXT_NETWORK_NOT_AVAILABLE);
+          drawError(wifi_x_196x196, TXT_NETWORK_NOT_AVAILABLE);
+        }
+        while (display.nextPage());
       }
-      while (display.nextPage());
+      else
+      {
+        Serial.println(TXT_WIFI_CONNECTION_FAILED);
+        do
+        {
+#ifdef WEB_SVR
+          if ( manual_wakeup )
+            // Draw Web (AP) symbol in upper left corner
+            drawWebIcon(2);
+#endif
+          drawError(wifi_x_196x196, TXT_WIFI_CONNECTION_FAILED);
+        }
+        while (display.nextPage());
+      }
     }
     else
-    {
-      Serial.println(TXT_WIFI_CONNECTION_FAILED);
-      do
-      {
-#ifdef WEB_SVR
-        if ( manual_wakeup )
-          // Draw Web (AP) symbol in upper left corner
-          drawWebIcon(2);
-#endif
-        drawError(wifi_x_196x196, TXT_WIFI_CONNECTION_FAILED);
-      }
-      while (display.nextPage());
-    }
+      SilentErr = 1;
 
 #ifdef WEB_SVR
     if ( manual_wakeup )
@@ -350,7 +361,7 @@ void setup()
     { // Not waked-up by Web button
       killWiFi();
       powerOffDisplay();
-      beginDeepSleep(startTime, &timeInfo);
+      beginDeepSleep(&timeInfo);
     }
   }
 
@@ -368,32 +379,46 @@ void setup()
 #endif
   int rxStatus = getOWMonecall(client, owm_onecall);
   if (rxStatus != HTTP_CODE_OK)
-  {
-    killWiFi();
-    statusStr = "One Call " + OWM_ONECALL_VERSION + " API";
-    tmpStr = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
-    initDisplay(0); // WEB_SVR
-    do
-    {
-      drawError(wi_cloud_down_196x196, statusStr, tmpStr);
-    } while (display.nextPage());
-    powerOffDisplay();
-    beginDeepSleep(startTime, &timeInfo);
-  }
-  rxStatus = getOWMairpollution(client, owm_air_pollution,
-                                owm_onecall.current.dt); /* AUTO_TZ */
+    // Attempt a second time before given up (transient error)
+    rxStatus = getOWMonecall(client, owm_onecall);
   if (rxStatus != HTTP_CODE_OK)
   {
     killWiFi();
-    statusStr = "Air Pollution API";
-    tmpStr = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
-    initDisplay(0); // WEB_SVR
-    do
+    if ( RerFlg )
     {
-      drawError(wi_cloud_down_196x196, statusStr, tmpStr);
-    } while (display.nextPage());
-    powerOffDisplay();
-    beginDeepSleep(startTime, &timeInfo);
+      statusStr = "One Call " + OWM_ONECALL_VERSION + " API";
+      tmpStr = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
+      initDisplay(0); // WEB_SVR
+      do
+      {
+        drawError(wi_cloud_down_196x196, statusStr, tmpStr);
+      }
+      while (display.nextPage());
+      powerOffDisplay();
+    }
+
+    beginDeepSleep(&timeInfo);
+  }
+  rxStatus = getOWMairpollution(client, owm_air_pollution, owm_onecall.current.dt); /* AUTO_TZ */
+  if (rxStatus != HTTP_CODE_OK)
+    // Attempt a second time before given up (transient error)
+    rxStatus = getOWMairpollution(client, owm_air_pollution, owm_onecall.current.dt); /* AUTO_TZ */
+  if (rxStatus != HTTP_CODE_OK)
+  {
+    killWiFi();
+    if ( RerFlg )
+    {
+      statusStr = "Air Pollution API";
+      tmpStr = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
+      initDisplay(0); // WEB_SVR
+      do
+      {
+        drawError(wi_cloud_down_196x196, statusStr, tmpStr);
+      }
+      while (display.nextPage());
+      powerOffDisplay();
+    }
+    beginDeepSleep(&timeInfo);
   }
 #ifdef WEB_SVR
   if ( !manual_wakeup )
@@ -487,7 +512,7 @@ void setup()
   powerOffDisplay();
 
   // DEEP SLEEP
-  beginDeepSleep(startTime, &timeInfo);
+  beginDeepSleep(&timeInfo);
 } // end setup
 
 
@@ -525,11 +550,12 @@ void loop()
       // Once button is pressed, go back to sleep
       Serial.println("The button is released");
 
-      drawWebIcon(0);
+      if ( !SilentErr )
+        drawWebIcon(0);
 
       // Since timeinfo not initialised, bed/wake time is not checked this time
       // (but will be next time)
-      beginDeepSleep(startTime, &timeInfo);
+      beginDeepSleep(&timeInfo);
     }
     lastState = currentState;
   }
@@ -542,11 +568,12 @@ void loop()
       // Once touchpin hit, go back to sleep
       Serial.println("The touchpin is hit");
 
-      drawWebIcon(0);
+      if ( !SilentErr )
+        drawWebIcon(0);
 
       // Since timeinfo not initialised, bed/wake time is not checked this time
       // (but will be next time)
-      beginDeepSleep(startTime, &timeInfo);
+      beginDeepSleep(&timeInfo);
     }
   }
 #endif // BUTTON_PIN
@@ -556,9 +583,10 @@ void loop()
     // Deep sleep also on timeout
     Serial.println("Watch dog timer elapsed");
 
-    drawWebIcon(0);
+    if ( !SilentErr )
+      drawWebIcon(0);
     
-    beginDeepSleep(startTime, &timeInfo);
+    beginDeepSleep(&timeInfo);
   }
 
   delay(500);

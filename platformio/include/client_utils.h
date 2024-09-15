@@ -55,6 +55,7 @@ void restart_wdg     ( void );
 void do_deep_sleep   ( uint64_t );
 void beginDeepSleep  ( unsigned long &startTime, tm *timeInfo );
 extern unsigned long startTime;
+extern int           SilentErr;
 /*
  * - located in renderer.cpp
  */

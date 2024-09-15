@@ -297,8 +297,8 @@ void powerOffDisplay()
 /*
  * drawWebIcon
  *
- * This function is responsible for drawing the current conditions and
- * associated icons.
+ * This function is responsible for drawing / erasing the web access icon
+ * (erasing is performed in partial mode)
  */
 #ifdef WEB_SVR
 void drawWebIcon ( int drawIcon )
@@ -773,7 +773,11 @@ void drawForecast(owm_daily_t *const daily, tm timeInfo)
     timeInfo.tm_wday = (timeInfo.tm_wday + 1) % 7; // increment to next day
 
     // high | low
+#ifdef TEMP_FONT_ENH
+    display.setFont(&FONT_10pt8b);
+#else
     display.setFont(&FONT_8pt8b);
+#endif
     drawString(x + 31, 98 + 69 / 2 + 38 - 6 + 12, "|", CENTER);
 #ifdef UNITS_TEMP_KELVIN
     hiStr = String(static_cast<int>(std::round(daily[i].temp.max)));
@@ -851,13 +855,20 @@ void drawForecast(owm_daily_t *const daily, tm timeInfo)
       if (dailyPrecip > 0.0f)
 #endif
       {
-        display.setFont(&FONT_6pt8b);
-#ifdef POP_AND_VOL
-        drawString(x + 31, 98 + 69 / 2 + 38 - 6 + 26,
-                   dataStr + unitStr + " (" + dataStr2 + unitStr2 + ")", CENTER);
+#ifdef TEMP_FONT_ENH
+        display.setFont(&FONT_8pt8b);
+#define YADJ 28
 #else
-        drawString(x + 31, 98 + 69 / 2 + 38 - 6 + 26,
-                   dataStr + unitStr, CENTER);
+        display.setFont(&FONT_6pt8b);
+#define YADJ 26
+#endif
+#ifdef POP_AND_VOL
+        drawString(x + 31, 98 + 69 / 2 + 38 - 6 + YADJ, dataStr + unitStr , CENTER);
+
+        display.setFont(&FONT_6pt8b);
+        drawString(x + 31, 98 + 69 / 2 + 38 - 6 + YADJ + 12, "(" + dataStr2 + unitStr2 + ")", CENTER);
+#else
+        drawString(x + 31, 98 + 69 / 2 + 38 - 6 + YADJ, dataStr + unitStr, CENTER);
 #endif
       }
 #endif // DISPLAY_DAILY_PRECIP

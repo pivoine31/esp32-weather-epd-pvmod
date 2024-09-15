@@ -61,6 +61,7 @@ const String W_HTO          = "OWM request timeout";
 const String W_WATO         = "Wifi per AP timeout";
 const String W_WGTO         = "Wifi global timeout";
 const String W_WTOREC       = "Recom: (Wifi global TO) >= (Per AP TO) * (AP number)";
+const String W_RERFLG       = "Display errors messages";
 #endif
 
 // LC_TIME
