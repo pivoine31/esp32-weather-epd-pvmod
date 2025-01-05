@@ -310,6 +310,7 @@ extern unsigned long startTime;
 //   French (France)                 fr_FR
 //   Dutch (Belgium)                 nl_BE
 //   Portuguese (Brazil)             pt_BR
+//   Romanian (Romania)              ro_RO
 #define LOCALE en_US
 
 // TIME
