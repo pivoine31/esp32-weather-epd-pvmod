@@ -52,6 +52,9 @@
 // Report Error flag
 unsigned int  RerFlg = DEF_RER;
 
+// Display weather Icons flag
+unsigned int  WicFlg = DEF_WIC;
+
 #ifdef WEB_SVR
 /*****************************************************/
 /* WEB server management                             */
@@ -143,6 +146,10 @@ unsigned int  HttpTimeout = DEF_HTTP_TIMEOUT;
 #define NM_RER "ReportError"
 String RerChecked = "checked";  // Keep in sync wih DEF_RER
 
+// Display weather Icons flag
+#define NM_WIC "GraphIcons"
+String WicChecked = "checked";  // Keep in sync wih DEF_WIC
+
 // Init flag
 #define NM_INIT "Inited"
 
@@ -196,6 +203,7 @@ void clean_nvs ( void )
   preferences.putString(NM_WGT, String(WifiTimeout));
   preferences.putString(NM_HTO, String(HttpTimeout));
   preferences.putString(NM_RER, String(RerFlg));
+  preferences.putString(NM_WIC, String(WicFlg));
 
   preferences.putString(NM_INIT, "yes");
 }
@@ -313,8 +321,9 @@ void retrieve_config ( void )
   s = preferences.getString(NM_RER, String(DEF_RER));
   RerFlg = s.toInt();
   RerChecked = (RerFlg) ? "checked" : "";
-
-  //Serial.printf("Retrieve RER : RerFlg=%d\n",RerFlg);
+  s = preferences.getString(NM_WIC, String(DEF_WIC));
+  WicFlg = s.toInt();
+  WicChecked = (WicFlg) ? "checked" : "";
 
   check_config();
 }
@@ -393,8 +402,9 @@ void reset_parm_config ( void )
   RerFlg = DEF_RER;
   RerChecked = (RerFlg) ? "checked" : "";
   preferences.putString(NM_RER, String(RerFlg));
-
-  //Serial.printf("Reset RER : RerFlg=%d\n",RerFlg);
+  WicFlg = DEF_WIC;
+  preferences.putString(NM_WIC, String(WicFlg));
+  WicChecked = (WicFlg) ? "checked" : "";
 }
 
 /*
@@ -728,7 +738,7 @@ void web_svr_setup ( void )
     if ( check_remoteLogged(&ip) )
     {
       int i;
-      for (i=0 ; i<MX_SSI ; i++)
+      for (i=0 ; i<MX_LOC ; i++)
       {
         if (request->hasParam(NLoc[i])) {
           VLoc[i] = request->getParam(NLoc[i])->value();
@@ -941,6 +951,8 @@ void web_svr_setup ( void )
         "<label for=\"wgto\" class=\"l2\">" + W_WTOREC + "</label><br><br>"
         "<label for=\"RerFlg\" class=\"l1\">" + W_RERFLG + "</label>"
         "<input type=\"checkbox\" id=\"RerFlg\" name=\"" + NM_RER + "\" value=active " + RerChecked + "><br><br>"
+        "<label for=\"WicFlg\" class=\"l1\">" + W_WICFLG + "</label>"
+        "<input type=\"checkbox\" id=\"WicFlg\" name=\"" + NM_WIC + "\" value=active " + WicChecked + "><br><br>"
         "<a href=\"/parm_reset\" class=\"rst\">"+W_REINITV+"</a>"
         "<a href=\"/weather\">"+W_PARMM+"</a><br><br>"
         "<a href=\"/wifi\">"+W_PARMW+"</a><br><br>"
@@ -948,7 +960,6 @@ void web_svr_setup ( void )
 	"</div>"
       "</form>"
       "</body></html>" );
-      //Serial.printf("Web page display RER : RerFlg=%d\n",RerFlg);
     }
     else
       page_lost(request);
@@ -1028,9 +1039,22 @@ void web_svr_setup ( void )
         RerFlg = 0;
         RerChecked = "";
       }
-      //Serial.printf("Web page get RER : RerFlg=%d\n",RerFlg);
       preferences.putString(NM_RER, String(RerFlg));
       Serial.printf("Report-Error-flag: %d\n", RerFlg);
+
+      if (request->hasParam(NM_WIC))
+      {
+        //String s = request->getParam(NM_WIC)->value();
+        WicFlg = 1;
+        WicChecked = "checked";
+      }
+      else
+      {
+        WicFlg = 0;
+        WicChecked = "";
+      }
+      preferences.putString(NM_WIC, String(WicFlg));
+      Serial.printf("Graph-Icons-flag: %d\n", WicFlg);
 
       if ( check_config() )
         request->send(200, "text/html", RSP_INVAL_PARM);
