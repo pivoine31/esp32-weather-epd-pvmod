@@ -6,12 +6,13 @@ This repository contains an update of the Luke Marzen ESP32 Weather station soft
 - Wi-Fi handling several networks / credentials
 - Embedded Web server (for managing Wi-Fi credentials, Geographic locations for displaying weather, weather station general parameters)
 - A feature named POP_AND_VOL that allows displaying simultaneously the probability of precipitations and the volume of precipitations (hourly and daily)
-- [dwuhls contribution] Automatic switching of the precipitation display pattern to avoid the contrast problem (the threshold may be modified trough the Web pages). The contrast modification in itself was submitted by dwuhls on issue #62 "eink display loses contrast on days with high PoP"
+- [dwuhls contribution] Automatic switching of the precipitation display pattern to avoid the contrast problem (the threshold may be modified trough the Web parameters page). The contrast modification in itself was submitted by dwuhls on issue #62 "eink display loses contrast on days with high PoP"
 - [asdf1qaz contribution] reported AQI indication malfunction; now fixed
 - [asdf1qaz contribution] battery threshold (config.cpp) modified to increase lipo battery life
   (see https://oscarliang.com/wp-content/uploads/2017/02/Lipo-battery-guide-Voltage-vs-capacity-used-percentage.jpg for guidelines)
 - [asdf1qaz contribution] battery voltage multiplier made customizable in config.h to permit adjustement after multimeter check  
-
+- [domp27 contribution] display weather icons on the graph on a per hour basis; the feature is controlled through the Web parameters page)  
+- [Stelian Hurghis (RedShuriken)] contribution for adding Romanian language
 In the modified code, most of the customization options are moved to config.h
 
 Using the Web server requires to identify a means for waking-up the station in web server mode: by default, this is triggered by hitting the internal button
@@ -33,7 +34,7 @@ Once the Web server is started, a specific icon is displayed in the upper left c
 
 The Web server terminates itself after 3 min without activity (by default), when the button is pressed again, or through "exit" on Web pages
 
-When no Wifi network is available, and the Web button is pressed, the weather station acts as an Access Point (SSID "ESP32-Meteo", password "Weather.32"); the Web server is acceeded in this case at address 192.168.4.1 in HTTP mode. In this case, the  "No Wifi" page is displayed, but with an icon in the upper left indicating Web access availability
+When no Wifi network is available, and the Web button is pressed, the weather station acts as an Access Point (SSID "ESP32-Meteo", password "Weather.32"); the Web server is acceeded in this case at address 192.168.4.1 in HTTP mode. The  "No Wifi" page is displayed, but with an icon in the upper left indicating Web access availability
 
 If not interested by the Web server, there is a custom option in config.h to disable it (#undef WEB_SVR, or remove, or comment). Doing this, you may still enable the "automatic pop switch", and the "pop and vol" features
 
