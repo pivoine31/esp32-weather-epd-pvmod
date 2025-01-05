@@ -53,6 +53,9 @@ int wifi_check ( void );
 // Report Error Flag
 extern unsigned int  RerFlg;
 
+// Display weather Icons flag
+extern unsigned int  WicFlg;
+
 #ifdef WEB_SVR
 /*
  * WEB SERVER USED
@@ -254,6 +257,13 @@ extern unsigned long startTime;
 // 0 Do not display error screen (stay on last active display), except for battery warning (always displayed)
 //   This is useful when the Internet access is not permanent
 #define DEF_RER          1
+
+// Display Hour Weather Icons flag (HOURLY WEATHER ICONS)
+// Weather icons displayed on the temperature and precipitation chart
+// They are drawn at the the x-axis tick marks just above the temperature line
+// 1 Display weather icons (enable)
+// 0 Do not display icons (disable)
+#define DEF_WIC          1
 
 // E-PAPER PANEL
 // This project supports the following E-Paper panels:
