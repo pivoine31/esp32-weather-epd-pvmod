@@ -329,6 +329,8 @@ extern unsigned long startTime;
 // https://man7.org/linux/man-pages/man3/strftime.3.html
 #define DEF_DATE_FORMAT "%a, %B %e" // ex: Sat, January 1
 // #define DEF_DATE_FORMAT "%a %e %B" // ex: Sat 1 January
+// #define DEF_DATE_FORMAT "%A, %B %e" // ex: Saturday, January 1
+// #define DEF_DATE_FORMAT "%A, %e %B" // ex: Saturday, 1 January
 // Date/Time format used when displaying the last refresh time along the bottom
 // of the screen.
 // For more information about formatting see
