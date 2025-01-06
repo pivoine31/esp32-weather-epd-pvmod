@@ -13,6 +13,7 @@ This repository contains an update of the Luke Marzen ESP32 Weather station soft
 - [asdf1qaz contribution] battery voltage multiplier made customizable in config.h to permit adjustement after multimeter check  
 - [domp27 contribution] display weather icons on the graph on a per hour basis; the feature is controlled through the Web parameters page - two possible vertical positions for the icons)  
 - [Stelian Hurghis (RedShuriken)] contribution for adding Romanian language
+
 In the modified code, most of the customization options are moved to config.h
 
 Using the Web server requires to identify a means for waking-up the station in web server mode: by default, this is triggered by hitting the internal button
