@@ -64,6 +64,7 @@ const String W_WGTO         = "Wifi global timeout";
 const String W_WTOREC       = "Recom: (Wifi global TO) >= (Per AP TO) * (AP number)";
 const String W_RERFLG       = "Display errors messages";
 const String W_WICFLG       = "Display graph icons";
+const String W_WICTEMP      = "Icons above temperature"; 
 #endif
 
 // LC_TIME

@@ -11,7 +11,7 @@ This repository contains an update of the Luke Marzen ESP32 Weather station soft
 - [asdf1qaz contribution] battery threshold (config.cpp) modified to increase lipo battery life
   (see https://oscarliang.com/wp-content/uploads/2017/02/Lipo-battery-guide-Voltage-vs-capacity-used-percentage.jpg for guidelines)
 - [asdf1qaz contribution] battery voltage multiplier made customizable in config.h to permit adjustement after multimeter check  
-- [domp27 contribution] display weather icons on the graph on a per hour basis; the feature is controlled through the Web parameters page)  
+- [domp27 contribution] display weather icons on the graph on a per hour basis; the feature is controlled through the Web parameters page - two possible vertical positions for the icons)  
 - [Stelian Hurghis (RedShuriken)] contribution for adding Romanian language
 In the modified code, most of the customization options are moved to config.h
 
@@ -22,7 +22,7 @@ Others alternatives are:
 - using a custom button other than the internal one (connected with a pullup resistor to the esp32)
 
 If not interested by the Web server, there is a custom option in config.h to disable it (comment or #undef WEB_SVR).
-Doing this, the "automatic pop switch" and the "pop and vol" features are still available
+Doing this, the "automatic pop switch", the "pop and vol" features and the "weather icons hourly" are still available
 
 Concerning the Wifi credential and the location :
 - if Web server is not used, the location (DEFLAT / DEFLON / DEFCITY) and one credential (WIFI_SSI1 / WIFI_PWD1) needs to be defined (in the section "WEB SERVER NOT USED")

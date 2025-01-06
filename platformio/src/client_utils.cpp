@@ -55,6 +55,9 @@ unsigned int  RerFlg = DEF_RER;
 // Display weather Icons flag
 unsigned int  WicFlg = DEF_WIC;
 
+// Weather Icons position
+unsigned int  WicTemp = DEF_WICTEMP;
+
 #ifdef WEB_SVR
 /*****************************************************/
 /* WEB server management                             */
@@ -150,6 +153,10 @@ String RerChecked = "checked";  // Keep in sync wih DEF_RER
 #define NM_WIC "GraphIcons"
 String WicChecked = "checked";  // Keep in sync wih DEF_WIC
 
+// Display weather Icons flag
+#define NM_WICTEMP "IconsVpos"
+String WicTempChecked = "checked";  // Keep in sync wih DEF_WICTEMP
+
 // Init flag
 #define NM_INIT "Inited"
 
@@ -204,6 +211,7 @@ void clean_nvs ( void )
   preferences.putString(NM_HTO, String(HttpTimeout));
   preferences.putString(NM_RER, String(RerFlg));
   preferences.putString(NM_WIC, String(WicFlg));
+  preferences.putString(NM_WICTEMP, String(WicTemp));
 
   preferences.putString(NM_INIT, "yes");
 }
@@ -324,6 +332,9 @@ void retrieve_config ( void )
   s = preferences.getString(NM_WIC, String(DEF_WIC));
   WicFlg = s.toInt();
   WicChecked = (WicFlg) ? "checked" : "";
+  s = preferences.getString(NM_WICTEMP, String(DEF_WICTEMP));
+  WicTemp = s.toInt();
+  WicTempChecked = (WicTemp) ? "checked" : "";
 
   check_config();
 }
@@ -405,6 +416,9 @@ void reset_parm_config ( void )
   WicFlg = DEF_WIC;
   preferences.putString(NM_WIC, String(WicFlg));
   WicChecked = (WicFlg) ? "checked" : "";
+  WicTemp = DEF_WICTEMP;
+  preferences.putString(NM_WICTEMP, String(WicTemp));
+  WicTempChecked = (WicTemp) ? "checked" : "";
 }
 
 /*
@@ -953,6 +967,8 @@ void web_svr_setup ( void )
         "<input type=\"checkbox\" id=\"RerFlg\" name=\"" + NM_RER + "\" value=active " + RerChecked + "><br><br>"
         "<label for=\"WicFlg\" class=\"l1\">" + W_WICFLG + "</label>"
         "<input type=\"checkbox\" id=\"WicFlg\" name=\"" + NM_WIC + "\" value=active " + WicChecked + "><br><br>"
+        "<label for=\"WicTemp\" class=\"l1\">" + W_WICTEMP + "</label>"
+        "<input type=\"checkbox\" id=\"WicTemp\" name=\"" + NM_WICTEMP + "\" value=active " + WicTempChecked + "><br><br>"
         "<a href=\"/parm_reset\" class=\"rst\">"+W_REINITV+"</a>"
         "<a href=\"/weather\">"+W_PARMM+"</a><br><br>"
         "<a href=\"/wifi\">"+W_PARMW+"</a><br><br>"
@@ -1044,7 +1060,6 @@ void web_svr_setup ( void )
 
       if (request->hasParam(NM_WIC))
       {
-        //String s = request->getParam(NM_WIC)->value();
         WicFlg = 1;
         WicChecked = "checked";
       }
@@ -1055,6 +1070,19 @@ void web_svr_setup ( void )
       }
       preferences.putString(NM_WIC, String(WicFlg));
       Serial.printf("Graph-Icons-flag: %d\n", WicFlg);
+
+      if (request->hasParam(NM_WICTEMP))
+      {
+        WicTemp = 1;
+        WicTempChecked = "checked";
+      }
+      else
+      {
+        WicTemp = 0;
+        WicTempChecked = "";
+      }
+      preferences.putString(NM_WICTEMP, String(WicTemp));
+      Serial.printf("Graph-Icons-Vpos: %d\n", WicTemp);
 
       if ( check_config() )
         request->send(200, "text/html", RSP_INVAL_PARM);

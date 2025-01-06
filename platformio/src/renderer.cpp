@@ -332,8 +332,8 @@ void drawCurrentConditions(const owm_current_t &current,
                            const owm_daily_t &today,
                            const owm_resp_air_pollution_t &owm_air_pollution,
                            float inTemp, float inHumidity,
-			   int tz_off   // AUTO_TZ
-			  )
+                           int tz_off   // AUTO_TZ
+                          )
 {
   String dataStr, unitStr;
 
@@ -1356,50 +1356,46 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
     int x0_t, x1_t, y0_t, y1_t;
     float yPxPerUnit;
 
-    if (i > 0)
-    {
-      // temperature
-      x0_t = static_cast<int>(std::round(xPos0 + ((i - 1) * xInterval)
-                                    + (0.5 * xInterval) ));
-      x1_t = static_cast<int>(std::round(xPos0 + (i * xInterval)
-                                    + (0.5 * xInterval) ));
-      yPxPerUnit = (yPos1 - yPos0)
-                   / static_cast<float>(tempBoundMax - tempBoundMin);
+    // temperature
+    yPxPerUnit = (yPos1 - yPos0) / static_cast<float>(tempBoundMax - tempBoundMin);
+    x0_t = static_cast<int>(std::round(xPos0 + ((i - 1) * xInterval) + (0.5 * xInterval) ));
+    x1_t = static_cast<int>(std::round(xPos0 + (i * xInterval) + (0.5 * xInterval) ));
 #ifdef UNITS_TEMP_KELVIN
-      y0_t = static_cast<int>(std::round(
-                yPos1 - (yPxPerUnit * ((hourly[i - 1].temp) - tempBoundMin)) ));
-      y1_t = static_cast<int>(std::round(
-                yPos1 - (yPxPerUnit * ((hourly[i    ].temp) - tempBoundMin)) ));
+    if (i > 0)
+      y0_t = static_cast<int>(std::round(yPos1 - (yPxPerUnit * ((hourly[i - 1].temp) - tempBoundMin)) ));
+    y1_t = static_cast<int>(std::round(yPos1 - (yPxPerUnit * ((hourly[i].temp) - tempBoundMin)) ));
 #endif
 #ifdef UNITS_TEMP_CELSIUS
-      y0_t = static_cast<int>(std::round(
-                yPos1 - (yPxPerUnit * (kelvin_to_celsius(hourly[i - 1].temp)
-                         - tempBoundMin)) ));
-      y1_t = static_cast<int>(std::round(
-                yPos1 - (yPxPerUnit * (kelvin_to_celsius(hourly[i    ].temp)
-                         - tempBoundMin)) ));
+    if (i > 0)
+      y0_t = static_cast<int>(std::round(yPos1 - (yPxPerUnit * (kelvin_to_celsius(hourly[i - 1].temp) - tempBoundMin)) ));
+    y1_t = static_cast<int>(std::round(yPos1 - (yPxPerUnit * (kelvin_to_celsius(hourly[i].temp) - tempBoundMin)) ));
 #endif
 #ifdef UNITS_TEMP_FAHRENHEIT
-      y0_t = static_cast<int>(std::round(
-                yPos1 - (yPxPerUnit * (kelvin_to_fahrenheit(hourly[i - 1].temp)
-                         - tempBoundMin)) ));
-      y1_t = static_cast<int>(std::round(
-                yPos1 - (yPxPerUnit * (kelvin_to_fahrenheit(hourly[i    ].temp)
-                         - tempBoundMin)) ));
+    if (i > 0)
+      y0_t = static_cast<int>(std::round(yPos1 - (yPxPerUnit * (kelvin_to_fahrenheit(hourly[i - 1].temp) - tempBoundMin)) ));
+    y1_t = static_cast<int>(std::round( yPos1 - (yPxPerUnit * (kelvin_to_fahrenheit(hourly[i].temp) - tempBoundMin)) ));
 #endif
 
+    if (i > 0)
+    {
       // graph temperature
       display.drawLine(x0_t    , y0_t    , x1_t    , y1_t    , ACCENT_COLOR);
       display.drawLine(x0_t    , y0_t + 1, x1_t    , y1_t + 1, ACCENT_COLOR);
       display.drawLine(x0_t - 1, y0_t    , x1_t - 1, y1_t    , ACCENT_COLOR);
 
-      // If fonction enabled, draw hourly bitmap (DISPLAY_HOURLY_ICONS)
-      // at every graph mark, skipping first and last tick
-      if ( WicFlg && (i != HOURLY_GRAPH_MAX) && !(i % hourInterval) )
-      {
-        const uint8_t *bitmap = getForecastBitmap32(hourly[i]);
+    }
+
+    // If fonction enabled, draw hourly bitmap (DISPLAY_HOURLY_ICONS)
+    // at every graph mark, skipping last tick
+    if ( WicFlg && (i != HOURLY_GRAPH_MAX) && !(i % hourInterval) )
+    {
+      const uint8_t *bitmap = getForecastBitmap32(hourly[i]);
+      if ( WicTemp )
+        // Display Icon along the temperature line
         display.drawInvertedBitmap(x0_t, y1_t - 32, bitmap, 32, 32, GxEPD_BLACK);
-      }
+      else
+        // Display Icon near upper limit of the graph
+        display.drawInvertedBitmap(x0_t, yPos0, bitmap, 32, 32, GxEPD_BLACK);
     }
 
 #ifdef UNITS_HOURLY_PRECIP_POP

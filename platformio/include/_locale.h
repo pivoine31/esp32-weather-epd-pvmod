@@ -59,6 +59,7 @@ extern const String W_WGTO;
 extern const String W_WTOREC;
 extern const String W_RERFLG;
 extern const String W_WICFLG;
+extern const String W_WICTEMP;
 #endif
 
 // LC_TIME
