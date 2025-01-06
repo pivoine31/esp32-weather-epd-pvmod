@@ -1,6 +1,6 @@
 L.Marzen ESP32 Weather EPD station software with additional features 
 
-Based on https://github.com/lmarzen/esp32-weather-epd (source code retrieved on 27/06/2024) 
+Based on https://github.com/lmarzen/esp32-weather-epd (source code retrieved on 15/09/2024) 
 
 This repository contains an update of the Luke Marzen ESP32 Weather station software, adding some interesting features:
 - Wi-Fi handling several networks / credentials
