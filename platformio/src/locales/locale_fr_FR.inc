@@ -64,6 +64,7 @@ const String W_WGTO         = "Tempo Wifi globale";
 const String W_WTOREC       = "Conseil: (Tempo Wifi globale) >= (Tempo par AP) * (Nombre de AP)";
 const String W_RERFLG       = "Affichage des erreurs";
 const String W_WICFLG       = "Icones sur le graphe";
+const String W_WICTEMP      = "Au dessus de la temperature";
 #endif
 
 // LC_TIME

@@ -56,6 +56,9 @@ extern unsigned int  RerFlg;
 // Display weather Icons flag
 extern unsigned int  WicFlg;
 
+// Weather Icons position
+extern unsigned int  WicTemp;
+
 #ifdef WEB_SVR
 /*
  * WEB SERVER USED
@@ -260,10 +263,14 @@ extern unsigned long startTime;
 
 // Display Hour Weather Icons flag (HOURLY WEATHER ICONS)
 // Weather icons displayed on the temperature and precipitation chart
-// They are drawn at the the x-axis tick marks just above the temperature line
 // 1 Display weather icons (enable)
 // 0 Do not display icons (disable)
 #define DEF_WIC          1
+
+// Vertical position of Hour Weather Icons flag (HOURLY WEATHER ICONS)
+// 1 Display weather icons along temperature line
+// 0 Display weather icons in the upper part of the graph
+#define DEF_WICTEMP      1
 
 // E-PAPER PANEL
 // This project supports the following E-Paper panels:
@@ -310,6 +317,7 @@ extern unsigned long startTime;
 //   French (France)                 fr_FR
 //   Dutch (Belgium)                 nl_BE
 //   Portuguese (Brazil)             pt_BR
+//   Romanian (Romania)              ro_RO
 #define LOCALE en_US
 
 // TIME
