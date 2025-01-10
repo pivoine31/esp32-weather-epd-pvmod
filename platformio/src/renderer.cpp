@@ -1050,9 +1050,11 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
   int xPos1 = DISP_WIDTH - 23; // may be moved to make room for decimal places
 #endif
 #ifdef UNITS_HOURLY_PRECIP_CENTIMETERS
-  const int xPos1 = DISP_WIDTH - 62; // A little extra room for more decimals
+  //const int xPos1 = DISP_WIDTH - 62; // A little extra room for more decimals
+  int xPos1 = DISP_WIDTH - 62; // A little extra room for more decimals
 #else
-  const int xPos1 = DISP_WIDTH - 56;
+  //const int xPos1 = DISP_WIDTH - 56;
+  int xPos1 = DISP_WIDTH - 56;
 #endif
   const int yPos0 = 216;
   const int yPos1 = DISP_HEIGHT - 46;
@@ -1079,6 +1081,10 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
 #endif
   int yTempMajorTicks = 5;
   float newTemp = 0;
+
+  /*
+   * This loop computes the extreme values for temperature and precipitaions
+   */
   for (int i = 1; i < HOURLY_GRAPH_MAX; ++i)
   {
 #ifdef UNITS_TEMP_KELVIN
@@ -1110,6 +1116,7 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
 #endif
     /* AUTO_POP_CONTRAST */
   }
+
   int tempBoundMin = static_cast<int>(tempMin - 1)
                       - modulo(static_cast<int>(tempMin - 1), yTempMajorTicks);
   int tempBoundMax = static_cast<int>(tempMax + 1)
@@ -1185,12 +1192,6 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
   if (precipBoundMax < 1)
   {
     yPrecipMajorTickDecimals = 2;
-#ifdef NEW
-    if (precipBoundMax > 0)
-    {
-      xPos1 -= 6; // needs extra room
-    }
-#endif
   }
   else if (precipBoundMax < 10)
   {
@@ -1224,11 +1225,11 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
   float precipRoundingMultiplier = std::pow(10.f, yPrecipMajorTickDecimals);
 #endif
 
-#ifdef NEW
-  if (precipBoundMax > 0)
-  { // fill need extra room for labels
-    xPos1 -= 23;
-  }
+#ifdef BEFORE_EXT_GRAPH
+#else
+  if ( !precipBoundMax )
+    // extend graph on right margin when no precipitations
+    xPos1 += 30;
 #endif
 
   /* AUTO_POP_CONTRAST */
@@ -1252,14 +1253,21 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
   Serial.println("Precipitation graph step = " + String(pop_step));
   /* AUTO_POP_CONTRAST */
 
-  // draw x axis
+  /*
+   * Draw x axis
+   */
   display.drawLine(xPos0, yPos1    , xPos1, yPos1    , GxEPD_BLACK);
   display.drawLine(xPos0, yPos1 - 1, xPos1, yPos1 - 1, GxEPD_BLACK);
 
-  // draw y axis
+  /*
+   * Draw y axis
+   */
   float yInterval = (yPos1 - yPos0) / static_cast<float>(yMajorTicks);
   for (int i = 0; i <= yMajorTicks; ++i)
   {
+    /*
+     * Display temperature scale on left
+     */
     String dataStr;
     int yTick = static_cast<int>(yPos0 + (i * yInterval));
     display.setFont(&FONT_8pt8b);
@@ -1268,12 +1276,20 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
 #if defined(UNITS_TEMP_CELSIUS) || defined(UNITS_TEMP_FAHRENHEIT)
     dataStr += "\260";
 #endif
+#ifdef BEFORE_EXT_GRAPH
     drawString(xPos0 - 8, yTick + 4, dataStr, RIGHT, ACCENT_COLOR);
+#else
+    drawString(xPos0 - 12, yTick + 4, dataStr, RIGHT, ACCENT_COLOR);
+#endif
 
 #ifdef POP_AND_VOL
     String precipUnit2, dataStr2;
 #endif
 
+    /*
+     * Display precipitation scales on right
+     * (only when some precipitations)
+     */
     if (precipBoundMax > 0)
     { // don't labels if precip is 0
 #ifdef UNITS_HOURLY_PRECIP_POP
@@ -1321,7 +1337,9 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
       drawString(display.getCursorX(), yTick + 4, precipUnit, LEFT);
     } // end draw labels if precip is >0
 
-    // draw dotted line
+    /*
+     * Draw horizontal dotted line
+     */
     if (i < yMajorTicks)
     {
       for (int x = xPos0; x <= xPos1 + 1; x += 3)
@@ -1350,16 +1368,28 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
                                            / static_cast<float>(xMaxTicks)));
   float xInterval = (xPos1 - xPos0 - 1) / static_cast<float>(HOURLY_GRAPH_MAX);
   display.setFont(&FONT_8pt8b);
+#ifdef BEFORE_RECENTER_GRAPH
   for (int i = 0; i < HOURLY_GRAPH_MAX; ++i)
+#else
+  for (int i = 0; i <= HOURLY_GRAPH_MAX; ++i)
+#endif
   {
     int xTick = static_cast<int>(xPos0 + (i * xInterval));
     int x0_t, x1_t, y0_t, y1_t;
     float yPxPerUnit;
 
-    // temperature
+    /*
+     * Compute temperature bounds
+     */
     yPxPerUnit = (yPos1 - yPos0) / static_cast<float>(tempBoundMax - tempBoundMin);
+#ifdef BEFORE_RECENTER_GRAPH
     x0_t = static_cast<int>(std::round(xPos0 + ((i - 1) * xInterval) + (0.5 * xInterval) ));
     x1_t = static_cast<int>(std::round(xPos0 + (i * xInterval) + (0.5 * xInterval) ));
+#else
+    x0_t = static_cast<int>(std::round(xPos0 + ((i - 1) * xInterval) ));
+    x1_t = static_cast<int>(std::round(xPos0 + (i * xInterval) ));
+#endif
+
 #ifdef UNITS_TEMP_KELVIN
     if (i > 0)
       y0_t = static_cast<int>(std::round(yPos1 - (yPxPerUnit * ((hourly[i - 1].temp) - tempBoundMin)) ));
@@ -1378,21 +1408,36 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
 
     if (i > 0)
     {
-      // graph temperature
+      /*
+       * Graph temperature line
+       */
       display.drawLine(x0_t    , y0_t    , x1_t    , y1_t    , ACCENT_COLOR);
       display.drawLine(x0_t    , y0_t + 1, x1_t    , y1_t + 1, ACCENT_COLOR);
       display.drawLine(x0_t - 1, y0_t    , x1_t - 1, y1_t    , ACCENT_COLOR);
-
     }
 
-    // If fonction enabled, draw hourly bitmap (DISPLAY_HOURLY_ICONS)
+    /*
+     * If fonction enabled, draw hourly bitmap (DISPLAY_HOURLY_ICONS)
+     */
+#ifdef BEFORE_RECENTER_GRAPH
     // at every graph mark, skipping last tick
     if ( WicFlg && (i != HOURLY_GRAPH_MAX) && !(i % hourInterval) )
+#else
+    // at every graph mark, skipping last tick only when some prepicitations 
+    if ( WicFlg &&
+         ((i != HOURLY_GRAPH_MAX) || (!precipBoundMax && !precipBoundMax2)) &&
+         !(i % hourInterval) )
+#endif
     {
       const uint8_t *bitmap = getForecastBitmap32(hourly[i]);
+#ifdef BEFORE_RECENTER_GRAPH
+#else
+      x0_t += (0.5 * xInterval);
+      x1_t += (0.5 * xInterval);
+#endif
       if ( WicTemp )
         // Display Icon along the temperature line
-        display.drawInvertedBitmap(x0_t, y1_t - 32, bitmap, 32, 32, GxEPD_BLACK);
+        display.drawInvertedBitmap(x0_t, y1_t - 42, bitmap, 32, 32, GxEPD_BLACK);
       else
         // Display Icon near upper limit of the graph
         display.drawInvertedBitmap(x0_t, yPos0, bitmap, 32, 32, GxEPD_BLACK);
@@ -1425,56 +1470,67 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
     y0_t = static_cast<int>(std::round( yPos1 - (yPxPerUnit * (precipVal)) ));
     y1_t = yPos1;
 
-    // graph Precipitation
+    /*
+     * Graph Precipitation as a greyed area
+     * Contribution of Dwuhls (solution to issue #62 on L Marzen Github)
+     */
     /* AUTO_POP_CONTRAST */
-    // Contribution of Dwuhls (solution to issue #62 on L Marzen Github)
-    for (int y = y1_t - 1; y > y0_t; y -= pop_step)
+#ifdef BEFORE_RECENTER_GRAPH
+#else
+    if ( i != HOURLY_GRAPH_MAX )
+#endif
     {
-      for (int x = x0_t; x < x1_t; x += 1)
+      for (int y = y1_t - 1; y > y0_t; y -= pop_step)
       {
-        if ((x % pop_step) == 0)
+        for (int x = x0_t; x < x1_t; x += 1)
         {
-          display.drawPixel(x, y, GxEPD_BLACK);
+          if ((x % pop_step) == 0)
+          {
+            display.drawPixel(x, y, GxEPD_BLACK);
+          }
         }
       }
-    }
-    /* AUTO_POP_CONTRAST */
+      /* AUTO_POP_CONTRAST */
 
 #ifdef POP_AND_VOL
-    if ( precipBoundMax2 )
-    {
-      if ( precipVal )
+      /*
+       * Display precipitation volume as a line
+       */
+      if ( precipBoundMax2 )
       {
-        //Serial.printf("VOL: Val[%d]=%f, BoundMax=%f\n", i, precipVal2, precipBoundMax2);
-        yPxPerUnit = (yPos1 - yPos0) / precipBoundMax2;
-        y0_t = static_cast<int>(std::round( yPos1 - (yPxPerUnit * (precipVal2)) ));
-        display.drawLine(x0_t    , last_y0_t, x0_t    , y0_t    , ACCENT_COLOR);   // Vertical left
-        display.drawLine(x0_t    , y0_t     , x1_t    , y0_t    , ACCENT_COLOR);   // Horizontal
-#ifdef POP_THICK_LINE
-        display.drawLine(x0_t-1  , last_y0_t, x0_t-1  , y0_t    , ACCENT_COLOR);   // Vertical left (2nd)
-        if ( y0_t != yPos1 )
-          display.drawLine(x0_t    , y0_t+1   , x1_t    , y0_t+1  , ACCENT_COLOR); // Horizontal (2nd)
-#endif
-        if ( (i+1) == HOURLY_GRAPH_MAX )
+        if ( precipVal )
         {
-          display.drawLine(x1_t  , y0_t     , x1_t    , yPos1   , ACCENT_COLOR);   // Vertical right
+          //Serial.printf("VOL: Val[%d]=%f, BoundMax=%f\n", i, precipVal2, precipBoundMax2);
+          yPxPerUnit = (yPos1 - yPos0) / precipBoundMax2;
+          y0_t = static_cast<int>(std::round( yPos1 - (yPxPerUnit * (precipVal2)) ));
+          display.drawLine(x0_t    , last_y0_t, x0_t    , y0_t    , ACCENT_COLOR);   // Vertical left
+          display.drawLine(x0_t    , y0_t     , x1_t    , y0_t    , ACCENT_COLOR);   // Horizontal
 #ifdef POP_THICK_LINE
-          display.drawLine(x1_t-1, y0_t     , x1_t-1  , yPos1   , ACCENT_COLOR);   // Vertical right (2nd)
+          display.drawLine(x0_t-1  , last_y0_t, x0_t-1  , y0_t    , ACCENT_COLOR);   // Vertical left (2nd)
+          if ( y0_t != yPos1 )
+            display.drawLine(x0_t    , y0_t+1   , x1_t    , y0_t+1  , ACCENT_COLOR); // Horizontal (2nd)
 #endif
+          if ( (i+1) == HOURLY_GRAPH_MAX )
+          {
+            display.drawLine(x1_t  , y0_t     , x1_t    , yPos1   , ACCENT_COLOR);   // Vertical right
+#ifdef POP_THICK_LINE
+            display.drawLine(x1_t-1, y0_t     , x1_t-1  , yPos1   , ACCENT_COLOR);   // Vertical right (2nd)
+#endif
+          }
+          last_y0_t = y0_t;
         }
-        last_y0_t = y0_t;
-      }
-      else if (last_y0_t != yPos1 )
-      {
-        // draw right line of previous bar
-        display.drawLine(x0_t    , last_y0_t, x0_t    , yPos1   , ACCENT_COLOR);   // Vertical right
+        else if (last_y0_t != yPos1 )
+        {
+          // draw right line of previous bar
+          display.drawLine(x0_t    , last_y0_t, x0_t    , yPos1   , ACCENT_COLOR);   // Vertical right
 #ifdef POP_THICK_LINE
-        display.drawLine(x0_t-1  , last_y0_t, x0_t-1  , yPos1   , ACCENT_COLOR);   // Vertical right (2nd)
+          display.drawLine(x0_t-1  , last_y0_t, x0_t-1  , yPos1   , ACCENT_COLOR);   // Vertical right (2nd)
 #endif
-        last_y0_t = yPos1;
+          last_y0_t = yPos1;
+        }
       }
-    }
 #endif // POP_AND_VOL
+    }
 
     if ((i % hourInterval) == 0)
     {
@@ -1488,7 +1544,6 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
       _strftime(timeBuffer, sizeof(timeBuffer), HOUR_FORMAT, timeInfo);
       drawString(xTick, yPos1 + 1 + 12 + 4 + 3, timeBuffer, CENTER);
     }
-
   }
 
   // draw the last tick mark
@@ -1506,7 +1561,7 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
     _strftime(timeBuffer, sizeof(timeBuffer), HOUR_FORMAT, timeInfo);
     drawString(xTick, yPos1 + 1 + 12 + 4 + 3, timeBuffer, CENTER);
   }
-
+  
   return;
 } // end drawOutlookGraph
 
