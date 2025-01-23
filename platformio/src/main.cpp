@@ -533,7 +533,8 @@ void loop()
   
   tm  timeInfo = {};
 
-  //wifi_check();  // WIFI_MULTI
+  // Perform net related tasks during loop
+  net_loop();
 
 #ifdef BUTTON_PIN
   // Avoid checking button too early after manual wakeup

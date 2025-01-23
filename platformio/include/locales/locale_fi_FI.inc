@@ -46,7 +46,6 @@ const String W_RETURN       = "Back";
 const String W_EXIT         = "Exit";
 const String W_UPDATE       = "Exit and update";
 const String W_MOD_DONE     = "Modification done";
-const String W_PARM_REINIT  = "Error : some parameters are reset";
 const String W_ACT_DONE_MAJ = "Action done; update in ";
 const String W_ACT_DONE_SLP = "Action done; going back to sleep";
 const String W_SUBMIT       = "Submit";
@@ -65,6 +64,12 @@ const String W_WTOREC       = "Recom: (Wifi global TO) >= (Per AP TO) * (AP numb
 const String W_RERFLG       = "Display errors messages";
 const String W_WICFLG       = "Display graph icons";
 const String W_WICTEMP      = "Icons above temperature"; 
+const String W_SOFTUPD      = "Software update";
+const String W_SOFTLOAD     = "Uploading ";
+const String W_SOFTPROG     = "Update in progress";
+const String W_SOFTFAIL     = "Update failed, device rebooting";
+const String W_SOFTSTART    = "Update starting";
+const String W_SOFTCPL      = "Update completed, device rebooting";
 #endif
 
 // LC_TIME

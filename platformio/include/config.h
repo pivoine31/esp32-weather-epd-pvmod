@@ -1,5 +1,5 @@
 /* Configuration option declarations for esp32-weather-epd.
- * Copyright (C) 2022-2024  Luke Marzen
+ * Copyright (C) 2022-2025  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,15 @@
 // When using Web server, these are set through the Web pages 
 #define WEB_SVR
 
+// OTA feature
+// Permits uploading software using WiFi (On The Air)
+// - either using dedicated Web page (and using the "firmware.bin"
+//   produced under .pio/build/<board>)
+// - or at compile time by entering address of App in platform.ini
+//   (see upload_* section ; note that OTA password is given by SOFTAP_PWD below)
+// Beware : requires using min_spiffs partition scheme
+#define USE_OTA
+
 // AUTO_TZ feature
 // Fetch current time (at location) and timezone in OWM response
 // (avoid SNTP setup delay, and automate time management for various locations)
@@ -37,9 +46,13 @@
 
 // WIFI_MULTI feature
 // Use Multi credential WIFI
-// Nom d'hote (used also for NVS storage, and Soft AP)
+// Host name on network / Soft AP SSID
 // Shall not exceed 15 characters
-#define HNAME "ESP32-Meteo"
+#define HNAME "Weather32"
+
+// NVS storage name (web server parameters)
+// Beware : changing it reset all parameters to default
+#define NVSNAME "ESP32-Meteo"
 
 // Dayly temperature / precipitation enhancing
 // Increase font size to improve readability
@@ -94,6 +107,7 @@ extern unsigned int  WicTemp;
  *
  * The weather station acts as an Access Point when no Wifi network is available
  * The SSID and Password are defined below
+ * Password is also used by the OTA function
  * When connecting to this AP, the Web server is usually made available in HTTP mode
  * at address 192.168.4.1
  */
@@ -121,7 +135,7 @@ extern unsigned int  WicTemp;
 
 // Key for acceeding the Web Server
 // comment out or undef to avoid using it
-// otherwise cusyomize to more specific value
+// otherwise customize to more specific value
 #define WEBKEY         "0000"
 
 // Hide password in Wifi Web page when defined
@@ -337,8 +351,6 @@ extern unsigned long startTime;
 // https://man7.org/linux/man-pages/man3/strftime.3.html
 #define DEF_DATE_FORMAT "%a, %B %e" // ex: Sat, January 1
 // #define DEF_DATE_FORMAT "%a %e %B" // ex: Sat 1 January
-// #define DEF_DATE_FORMAT "%A, %B %e" // ex: Saturday, January 1
-// #define DEF_DATE_FORMAT "%A, %e %B" // ex: Saturday, 1 January
 // Date/Time format used when displaying the last refresh time along the bottom
 // of the screen.
 // For more information about formatting see
@@ -549,6 +561,7 @@ extern unsigned long startTime;
 #define BATTERY_MONITORING 1
 
 // NON-VOLATILE STORAGE (NVS) NAMESPACE
+// (standard parameters)
 #define NVS_NAMESPACE "weather_epd"
 
 // DEBUG

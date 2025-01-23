@@ -43,6 +43,15 @@
   #include <WiFiClientSecure.h>
 #endif
 
+#ifdef USE_OTA
+// Permit updating software using WiFi wia Web page ("On the Air")
+#include <Update.h>
+#define U_PART U_SPIFFS
+
+// For update via IDE
+#include <ArduinoOTA.h>
+#endif
+
 #ifdef USE_HTTP
   static const uint16_t OWM_PORT = 80;
 #else
@@ -58,14 +67,300 @@ unsigned int  WicFlg = DEF_WIC;
 // Weather Icons position
 unsigned int  WicTemp = DEF_WICTEMP;
 
+// Friendly name the device on the network
+#include <ESPmDNS.h>
+
 #ifdef WEB_SVR
+
+// Manage WEB pages asynchronously
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+
+// Backup data in NVS
+#include <Preferences.h>
+
+#ifdef USE_OTA
+/*****************************************************/
+/* OTA software update - via IDE                     */
+/*****************************************************/
+
+void ota_ide_setup ( void )
+{
+  // Port defaults to 3232
+  // ArduinoOTA.setPort(3232);
+
+  // Set OTA Hostname
+  ArduinoOTA.setHostname(HNAME);
+
+  // Set OTA password
+  ArduinoOTA.setPassword(SOFTAP_PWD);
+
+  ArduinoOTA
+    .onStart([]() {
+      String type;
+      if (ArduinoOTA.getCommand() == U_FLASH) {
+        type = "sketch";
+      } else {  // U_SPIFFS
+        type = "filesystem";
+      }
+
+      Serial.println("Start updating " + type);
+    })
+    .onEnd([]() {
+      Serial.println("\nEnd");
+    })
+    .onProgress([](unsigned int progress, unsigned int total) {
+      if (total > 100)
+        Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    })
+    .onError([](ota_error_t error) {
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) {
+        Serial.println("Auth Failed");
+      } else if (error == OTA_BEGIN_ERROR) {
+        Serial.println("Begin Failed");
+      } else if (error == OTA_CONNECT_ERROR) {
+        Serial.println("Connect Failed");
+      } else if (error == OTA_RECEIVE_ERROR) {
+        Serial.println("Receive Failed");
+      } else if (error == OTA_END_ERROR) {
+        Serial.println("End Failed");
+      }
+    });
+
+  ArduinoOTA.begin();
+
+  Serial.println("OTA IDE initialised");
+}
+
+/*****************************************************/
+/* OTA software update - via WEB page                */
+/*****************************************************/
+
+static size_t content_len;
+static int    pcent;
+static int    update_pending = 0;
+
+const String OTA_PAGE = 
+"<!doctype html>"
+"<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
+"  <style type=\"text/css\">"
+"#pwidget"
+"{"
+"	background-color:lightblue;"
+"	width:200px;"
+"	padding:4px;"
+"	border-radius:3px;"
+"	text-align:center;"
+"	border:1px blue;"
+//"	margin-left:13px;"
+"}"
+"#progressbar"
+"{"
+"	width:200px;"
+"	background-color:white;"
+"	border-radius:9px;"
+"	border:1px blue;"
+"	height:10px;"
+"}"
+"#indicator"
+"{"
+"	width:0px;"
+"	background-color:blue;"
+"	border-radius:9px;"
+"	height:10px;"
+"	margin:0;"
+"}"
+"#progressnum"
+"{"
+"	text-align:center;"
+"	width:220px;"
+"	font-weight:bold;"
+"	color:blue;"
+"}"
+"</style>"
+"<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
+   "<h1>" + W_SOFTUPD + "</h1>"
+   "<div id='sm'>"
+     "<input type='file' name='update' id='update'><br>"
+     "<br><input type='submit' value='" + W_SOFTUPD + "'><br><br>"
+     "<a href=\"/wifi\">"+W_PARMW+"</a><br><br>"
+     "<a href=\"/weather\">"+W_PARMM+"</a><br><br>"
+     "<a href=\"/parm\">"+W_PARMV+"</a><br><br>"
+   "</div>"
+ "</form>"
+ "<div id='sb'>"
+// "<div id='pwidget'>"
+//   "<div id='progressbar'>"
+//     "<div id='indicator' style='width: 0px;'></div>"
+//   "</div>"
+//   "<div id='progressnum'>0 %</div>"
+// "</div>"
+ "</div>"
+ "<br><div id='end'></div>"
+ "<br><div id='ret'></div>"
+ "<script>"
+  "$('form').submit(function(e){"
+    "e.preventDefault();"
+    "var form = $('#upload_form')[0];"
+    "var data = new FormData(form);"
+    "var file = document.getElementById('update').files[0].name;"
+    "$('#sm').html('" + W_SOFTLOAD + "' + file + '<br><br>');"
+    "$('#sb').html('<div id=\"pwidget\"><div id=\"progressbar\"><div id=\"indicator\" style=\"width: 0px;\"></div></div><div id=\"progressnum\">0 %</div></div>');"
+    "console.log('Uploading ' + file);"
+    "$.ajax({"
+    "url: '/ota_update',"
+    "type: 'POST',"
+    "data: data,"
+    "contentType: false,"
+    "processData:false,"
+    "xhr: function() {"
+      "var xhr = new window.XMLHttpRequest();"
+      "xhr.upload.addEventListener('progress', progressHandler, false);"
+      "xhr.addEventListener('loadstart', startHandler, false);"
+      "xhr.addEventListener('load', completeHandler, false);"
+      "xhr.addEventListener('error', errorHandler, false);"
+      ""
+      "function progressHandler(evt) {"
+        "if (evt.lengthComputable) {"
+          "$('#end').html('" + W_SOFTPROG + "');"
+          "var per = evt.loaded / evt.total;"
+          "$('#progressnum').html(Math.round(per*100) + ' %');"
+          "$('#progressbar').html('<div id=\"indicator\" style=\"width: ' + Math.round(per*100)*2 + 'px;\"></div>');"
+        "}"
+      "}"
+      "function errorHandler(evt) {"
+        "console.log('Update failed ('+ evt.target.responseText + '), device going to sleep');"
+        "$('#end').html('" + W_SOFTFAIL + " (' + xhr.status + ')');"
+        //"$('#ret').html('<a href=\"/wifi\">"+W_PARMW+"</a><br><br>"
+        //                "<a href=\"/weather\">"+W_PARMM+"</a><br><br>"
+        //                "<a href=\"/parm\">"+W_PARMV+"</a><br><br>');"
+        "if (xhr.status >= 500)"
+        "{ console.log('Something went wrong on the server (' + xhr.status + ')'); }"
+        "else if (xhr.status >= 400)"
+        "{ console.log('Something went wrong with the client request (' + xhr.status + ')'); }" 
+        "else"
+        "{ console.log('Unknown error (' + xhr.status + ')'); }" 
+      "}"
+      "function startHandler(evt) {"
+        "console.log('Upload starting');"
+        "$('#end').html('" + W_SOFTSTART + "');"
+      "}"
+      "function completeHandler(evt) {"
+        "console.log('Request completed');"
+        "if (xhr.status != 200)"
+          "errorHandler(evt);"
+        "else {"
+          "console.log('Update completed, device going to sleep ('+ evt.target.responseText + ')');"
+          "$('#end').html('" + W_SOFTCPL + " (' + evt.target.responseText + ')');"
+          //"$('#ret').html('<a href=\"/wifi\">"+W_PARMW+"</a><br><br>"
+          //                "<a href=\"/weather\">"+W_PARMM+"</a><br><br>"
+          //                "<a href=\"/parm\">"+W_PARMV+"</a><br><br>');"
+        "}"
+      "}"
+      "return xhr;"
+    "},"
+   "});"
+  "});"
+ "</script>";
+
+void handleUpdate(AsyncWebServerRequest *request)
+{
+  request->send(200, "text/html", OTA_PAGE);
+}
+
+void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
+{
+  if (!index)
+  {
+    Serial.printf("Update started (len=%d)\n",content_len);
+    delay(1000);
+
+    pcent = 0;
+    content_len = request->contentLength();
+    // if filename includes spiffs, update the spiffs partition
+    int cmd = (filename.indexOf("spiffs") > -1) ? U_PART : U_FLASH;
+
+    if (!Update.begin(UPDATE_SIZE_UNKNOWN, cmd))
+    {
+      Update.printError(Serial);
+    }
+  }
+
+  if (Update.write(data, len) != len)
+  {
+    Update.printError(Serial);
+  }
+
+  if (final)
+  {
+    Serial.println((Update.hasError()) ? "Upload FAILED, device going to sleep" : "Update completed, device going to sleep");
+
+    if (!Update.end(true))
+    {
+      Update.printError(Serial);
+    }
+  }
+}
+
+void printProgress(size_t prg, size_t sz)
+{
+  if (content_len)
+  {
+    int lpc = (prg*100)/content_len;
+    if (lpc != pcent)
+    {
+      pcent = lpc;
+      if ( !(lpc%10) )
+        Serial.printf("Update progress: %d%%\n", lpc);
+    }
+  }
+}
+
+#endif // USE_OTA
+
+#ifdef USE_EOTA
+/*****************************************************/
+/* OTA software update - via WEB / Elegant OTA       */
+/*****************************************************/
+
+#include <ElegantOTA.h>
+
+static unsigned long ota_progress_millis = 0;
+
+void onOTAStart()
+{
+  // Log when OTA has started
+  Serial.println("OTA update started!");
+}
+
+void onOTAProgress(size_t current, size_t final)
+{
+  // Log every 1 second
+  if (millis() - ota_progress_millis > 1000) {
+    ota_progress_millis = millis();
+    Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+void onOTAEnd(bool success)
+{
+  // Log when OTA has finished
+  if (success) {
+    Serial.println("OTA update finished successfully!");
+  } else {
+    Serial.println("There was an error during OTA update!");
+  }
+
+  // Need to restart in order to take into account the new image
+  reset_time = millis();
+  reset_pending = 1;
+}
+#endif // USE_EOTA
+
 /*****************************************************/
 /* WEB server management                             */
 /*****************************************************/
-
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-#include <Preferences.h>
 
 #ifdef WEB_HIDE_PWD
 // Password not displayed in WIFI WEB page
@@ -160,6 +455,10 @@ String WicTempChecked = "checked";  // Keep in sync wih DEF_WICTEMP
 // Init flag
 #define NM_INIT "Inited"
 
+// Reset requested flags / time
+static int           reset_pending = 0;
+static unsigned long reset_time;
+
 /*
  * CLEAR_NVS
  *
@@ -235,6 +534,7 @@ int check_config ( void )
        (VLat[defloc] == "") ||
        (VLon[defloc] == "")  )
   {
+    Serial.println("Resetting current location");
     Lchecked[defloc] = "";
     defloc = 0;
     DefLoc = "0";
@@ -248,6 +548,7 @@ int check_config ( void )
        (VLat[0] == "") ||
        (VLon[0] == "")  )
   {
+    Serial.println("Resetting location to default");
     VLoc[0] = DEFCITY;
     VLat[0] = DEFLAT;
     VLon[0] = DEFLON;
@@ -261,6 +562,7 @@ int check_config ( void )
   if ( (VSsi[0] == "") ||
        (VPwd[0] == "")  )
   {
+    Serial.println("Resetting WiFi to default");
     VSsi[0] = WIFI_SSI1;
     VPwd[0] = WIFI_PWD1;
     preferences.putString(NSsi[0].c_str(), VSsi[0]);
@@ -281,7 +583,7 @@ void retrieve_config ( void )
   int    i;
   
   // Retrieve data from remanent backup
-  preferences.begin(HNAME, false);
+  preferences.begin(NVSNAME, false);
 
   // Check if NVS has already been init (occurs only once, but avoid tons of log messages)
   s = preferences.getString(NM_INIT, "");
@@ -518,7 +820,7 @@ const String KEY_PAGE = "<!DOCTYPE HTML><html><head>"
                   "<h1>"+W_WEATHER+"</h1>"
                   "<form action=\"/get\" method=\"get\">"
                     "<label for=\"key\">"+W_KEY+"</label>"
-                    "<input type=\"number\" id=\"key\" name=\"key\" value=\"""\" ><br><br>"
+                    "<input type=\"number\" id=\"key\" name=\"key\" value=\"""\" autofocus><br><br>"
                     "<input type=\"submit\" value=\""+W_SUBMIT+"\">"
                   "</form>"
                   "</body></html>";
@@ -530,6 +832,9 @@ const String MAIN_PAGE = "<!DOCTYPE HTML><html><head>"
                   "<a href=\"/weather\">"+W_PARMM+"</a><br><br>"
                   "<a href=\"/wifi\">"+W_PARMW+"</a><br><br>"
                   "<a href=\"/parm\">"+W_PARMV+"</a><br><br>"
+#ifdef USE_OTA
+                  "<a href=\"/ota\">"+W_SOFTUPD+"</a><br><br>"
+#endif
                   "</body></html>";
 #ifdef WEBKEY
 const String RSP_INVAL_KEY = "<!DOCTYPE HTML><html><head>"
@@ -548,17 +853,6 @@ const String RSP_INVAL_KEY = "<!DOCTYPE HTML><html><head>"
                   "</form>"
                   "</body></html>";
 #endif
-const String RSP_INVAL_PARM = "<!DOCTYPE HTML><html><head>"
-                  "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-                  "</head><body>"
-                  "<h1>"+W_WEATHER+"</h1>"
-                  "<p>"+W_PARM_REINIT+"</p>"
-                  "<a href=\"/weather\">"+W_RETURNM+"</a><br>"
-                  "<a href=\"/wifi\">"+W_RETURNW+"</a><br><br>"
-                  "<a href=\"/parm\">"+W_RETURNV+"</a><br><br>"
-                  "<a href=\"/update\">"+W_UPDATE+"</a><br><br>"
-                  "<a href=\"/exit\">"+W_EXIT+"</a><br>"
-                  "</body></html>";
 const String RSP_ACT_DONE = "<!DOCTYPE HTML><html><head>"
                   "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
                   "</head><body>"
@@ -567,7 +861,10 @@ const String RSP_ACT_DONE = "<!DOCTYPE HTML><html><head>"
                   "<a href=\"/weather\">"+W_RETURNM+"</a><br><br>"
                   "<a href=\"/wifi\">"+W_RETURNW+"</a><br><br>"
                   "<a href=\"/parm\">"+W_RETURNV+"</a><br><br>"
-                  "<a href=\"/update\">"+W_UPDATE+"</a><br><br>"
+#ifdef USE_OTA
+                  "<a href=\"/ota\">"+W_SOFTUPD+"</a><br><br>"
+#endif
+                  "<a href=\"/prm_update\">"+W_UPDATE+"</a><br><br>"
                   "<a href=\"/exit\">"+W_EXIT+"</a><br>"
                   "</body></html>";
 const String RSP_TERMACT1a_DONE = "<!DOCTYPE HTML><html><head>"
@@ -738,6 +1035,9 @@ void web_svr_setup ( void )
         "<a href=\"/wifi\">"+W_PARMW+"</a>"
         "<a href=\"/weather_reset\" class=\"rst\">"+W_REINITM+"</a><br><br>"
         "<a href=\"/parm\">"+W_PARMV+"</a><br><br>"
+#ifdef USE_OTA
+        "<a href=\"/ota\">"+W_SOFTUPD+"</a><br><br>"
+#endif
         "<input type=\"submit\" value=\""+W_SUBMIT+"\">"
 	"</div>"
       "</form>"
@@ -778,11 +1078,9 @@ void web_svr_setup ( void )
         preferences.putString(NDloc.c_str(), DefLoc);
         Serial.printf("Def Location: %d\n", defloc);
       }
-      
-      if ( check_config() )
-        request->send(200, "text/html", RSP_INVAL_PARM);
-      else
-        request->send(200, "text/html", RSP_ACT_DONE);
+
+      check_config();
+      request->send(200, "text/html", RSP_ACT_DONE);
 
       restart_wdg();
     }
@@ -853,6 +1151,9 @@ void web_svr_setup ( void )
         "<a href=\"/wifi_reset\" class=\"rst\">"+W_REINITW+"</a>"
         "<a href=\"/weather\">"+W_PARMM+"</a><br><br>"
         "<a href=\"/parm\">"+W_PARMV+"</a><br><br>"
+#ifdef USE_OTA
+        "<a href=\"/ota\">"+W_SOFTUPD+"</a><br><br>"
+#endif
         "<input type=\"submit\" value=\""+W_SUBMIT+"\">"
 	"</div>"
       "</form>"
@@ -881,10 +1182,8 @@ void web_svr_setup ( void )
         }
       }
 
-      if ( check_config() )
-        request->send(200, "text/html", RSP_INVAL_PARM);
-      else
-        request->send(200, "text/html", RSP_ACT_DONE);
+      check_config();
+      request->send(200, "text/html", RSP_ACT_DONE);
 
       restart_wdg();
     }
@@ -972,6 +1271,9 @@ void web_svr_setup ( void )
         "<a href=\"/parm_reset\" class=\"rst\">"+W_REINITV+"</a>"
         "<a href=\"/weather\">"+W_PARMM+"</a><br><br>"
         "<a href=\"/wifi\">"+W_PARMW+"</a><br><br>"
+#ifdef USE_OTA
+        "<a href=\"/ota\">"+W_SOFTUPD+"</a><br><br>"
+#endif
         "<input type=\"submit\" value=\""+W_SUBMIT+"\">"
 	"</div>"
       "</form>"
@@ -1084,10 +1386,8 @@ void web_svr_setup ( void )
       preferences.putString(NM_WICTEMP, String(WicTemp));
       Serial.printf("Graph-Icons-Vpos: %d\n", WicTemp);
 
-      if ( check_config() )
-        request->send(200, "text/html", RSP_INVAL_PARM);
-      else
-        request->send(200, "text/html", RSP_ACT_DONE);
+      check_config();
+      request->send(200, "text/html", RSP_ACT_DONE);
 
       restart_wdg();
     }
@@ -1113,7 +1413,7 @@ void web_svr_setup ( void )
     IPAddress ip = request->client()->remoteIP();
     if ( check_remoteLogged(&ip) )
     {
-      Serial.println("Clearing the NVS");
+      Serial.println("Cleaning the NVS");
 
       clean_nvs();
       request->send(200, "text/html", RSP_ACT_DONE);
@@ -1140,7 +1440,7 @@ void web_svr_setup ( void )
     restart_wdg();
   });
 
-  server.on("/update", HTTP_GET, [] (AsyncWebServerRequest *request) {
+  server.on("/prm_update", HTTP_GET, [] (AsyncWebServerRequest *request) {
     IPAddress ip = request->client()->remoteIP();
     if ( check_remoteLogged(&ip) )
     {
@@ -1178,9 +1478,70 @@ void web_svr_setup ( void )
       page_lost(request);
   });
 
+#ifdef USE_OTA
+  // Activate the code for downloading sketch OTA
+
+  // - Download sketch through dedicated Web page
+  server.on("/ota", HTTP_GET, [](AsyncWebServerRequest *request) {
+    IPAddress ip = request->client()->remoteIP();
+    if ( check_remoteLogged(&ip) )
+    {
+      update_pending = 1;
+      handleUpdate(request);
+    }
+    else
+      page_lost(request);
+  });
+
+  server.on("/ota_update", HTTP_POST,
+    [](AsyncWebServerRequest *request)
+    {
+      AsyncWebServerResponse *response;
+
+      response = request->beginResponse(
+                          ((Update.hasError() || !update_pending) ? 500 : 200),
+                          "text/plain",
+                          (Update.hasError() ? "HasError" :
+                          (!update_pending   ? "OutOfContext" : "SUCCESS")) );
+      response->addHeader("Connection", "close");
+      request->send(response);
+      update_pending = 0;
+
+      if ( !SilentErr )
+        drawWebIcon(0);
+
+      // Need to restart in order to take into account the new image
+      reset_time = millis();
+      reset_pending = 1;
+    },
+    [](AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data,
+                  size_t len, bool final)
+    {
+      if ( update_pending )
+        handleDoUpdate(request, filename, index, data, len, final);
+    }
+  );
+
+  Update.onProgress(printProgress);
+
+  // Enable OTA via IDE
+  ota_ide_setup();
+
+#endif // USE_OTA
+
   server.onNotFound(notFound);
 
   Serial.println("Starting WEB server");
+
+#ifdef USE_EOTA
+  // Start ElegantOTA
+  ElegantOTA.begin(&server);
+
+  // ElegantOTA callbacks
+  ElegantOTA.onStart(onOTAStart);
+  ElegantOTA.onProgress(onOTAProgress);
+  ElegantOTA.onEnd(onOTAEnd);
+#endif
 
   server.begin();
 }
@@ -1229,6 +1590,12 @@ int wifi_check ( void )
       Serial.println(WiFi.SSID());
       Serial.print("IP Address: ");
       Serial.println(WiFi.localIP());
+
+      // Use mdns for local host name resolution
+      if ( !MDNS.begin(HNAME) )
+        Serial.println("Error setting up MDNS responder!");
+      else
+        Serial.printf("MDNS responder set to '%s.local'\n", HNAME);
     }
   }
 
@@ -1382,6 +1749,12 @@ static int prv = -1;
     Serial.println("IP: " + WiFi.localIP().toString());
     //wsta = 1;
 #endif
+
+    // Use mdns for local host name resolution
+    if ( !MDNS.begin(HNAME) )
+      Serial.println("Error setting up MDNS responder!");
+     else
+      Serial.printf("MDNS responder set to '%s.local'\n", HNAME);
   }
   else
     Serial.printf("%s '%s'\n", TXT_COULD_NOT_CONNECT_TO, "WiFi");
@@ -1401,6 +1774,25 @@ void killWiFi()
   WiFi.disconnect();
   WiFi.mode(WIFI_OFF);
 } // killWiFi
+
+/*
+ * NET_LOOP Perform network treatment during loop
+ */
+int net_loop ( void )
+{
+#ifdef USE_OTA
+  ArduinoOTA.handle();
+#endif
+#ifdef USE_EOTA
+  ElegantOTA.loop();
+#endif
+
+  // Reset triggered and time exhausted
+  if ( reset_pending && ((millis() - reset_time) > 5000) )
+    ESP.restart();
+
+  return 0;
+}
 
 /*****************************************************/
 /* OWM API ACCESS                                    */

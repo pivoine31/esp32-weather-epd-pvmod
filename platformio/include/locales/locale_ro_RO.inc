@@ -1,4 +1,4 @@
-/* British English locale data for esp32-weather-epd.
+/* Romanian locale data for esp32-weather-epd. 
  * Copyright (C) 2022-2024  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,48 +15,61 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/* Special thanks to Stelian Hurghis (RedShuriken) for contributing this
+ * translation.
+ *
+ * If you have any feedback or suggestions on translations, please open an issue
+ * on this project's github page:
+ * <https://github.com/lmarzen/esp32-weather-epd/issues>
+ */
+
 #include "_locale.h"
 #include <vector>
 #include <Arduino.h>
 
 #ifdef WEB_SVR
 // Translation for Web server messages
-const String W_PAGENOTFOUND = "Page not found";
-const String W_INVALKEY     = "Error: invalid key";
-const String W_WEATHER      = "Weather";
-const String W_PARMM        = "Weather parameters";
-const String W_PARMW        = "Wifi parameters";
-const String W_PARMV        = "General parameters";
+const String W_PAGENOTFOUND = "Eroare Pagina";
+const String W_INVALKEY     = "Eroare: Cheie Invalida";
+const String W_WEATHER      = "Vremea";
+const String W_PARMM        = "Parametrii Vremii";
+const String W_PARMW        = "Parametrii Wifi";
+const String W_PARMV        = "Parametrii Generali";
 const String W_CLNMEM       = "Cleanup non volatile storage";
-const String W_REINITM      = "Weather parm reinit";
-const String W_REINITW      = "Wifi parm reinit";
-const String W_REINITV      = "General parm reinit";
-const String W_RETURNM      = "Back to Weather page";
-const String W_RETURNW      = "Back to Wifi page";
-const String W_RETURNV      = "Back to General parm page";
-const String W_RETURN       = "Back";
-const String W_EXIT         = "Exit";
-const String W_UPDATE       = "Exit and update";
-const String W_MOD_DONE     = "Modification done";
-const String W_PARM_REINIT  = "Error : some parameters are reset";
-const String W_ACT_DONE_MAJ = "Action done; update in ";
-const String W_ACT_DONE_SLP = "Action done; going back to sleep";
-const String W_SUBMIT       = "Submit";
-const String W_KEY          = "Key";
-const String W_POPTHR       = "POP threshold";
-const String W_BEDTIM       = "Bed time";
-const String W_WAKTIM       = "Wake time";
-const String W_SLPDLY       = "Update interval";
-const String W_HOURNB       = "Graph size";
-const String W_MAJMIN       = "Min update interval";
-const String W_WEBDLY       = "Max serveur lifetime";
+const String W_REINITM      = "Reinit Param Vremii";
+const String W_REINITW      = "Param Wifi Reinit";
+const String W_REINITV      = "Param Generali Reinit";
+const String W_RETURNM      = "Inapoi la pagina Vremii";
+const String W_RETURNW      = "Inapoi la pagina Wifi";
+const String W_RETURNV      = "Inapoi la pagina Generala";
+const String W_RETURN       = "Inapoi";
+const String W_EXIT         = "Iesire";
+const String W_UPDATE       = "Iesire si Update";
+const String W_MOD_DONE     = "Modificare Efectuata";
+const String W_ACT_DONE_MAJ = "Actiune Efectuata; Urmeaza Update ";
+const String W_ACT_DONE_SLP = "Actiune Efectuata; Inapoi in Hibernare";
+const String W_SUBMIT       = "Efectuat";
+const String W_KEY          = "Cheie";
+const String W_POPTHR       = "Nivel POP";
+const String W_BEDTIM       = "Ora de Culcare";
+const String W_WAKTIM       = "Ora de Trezire";
+const String W_SLPDLY       = "Interval de Update";
+const String W_HOURNB       = "Dimensiune Grafic";
+const String W_MAJMIN       = "Interval Update Minim";
+const String W_WEBDLY       = "Durata maxima a serverului";
 const String W_HTO          = "OWM request timeout";
 const String W_WATO         = "Wifi per AP timeout";
 const String W_WGTO         = "Wifi global timeout";
 const String W_WTOREC       = "Recom: (Wifi global TO) >= (Per AP TO) * (AP number)";
-const String W_RERFLG       = "Display errors messages";
-const String W_WICFLG       = "Display graph icons";
-const String W_WICTEMP      = "Icons above temperature"; 
+const String W_RERFLG       = "Afisare Erori";
+const String W_WICFLG       = "Pictograme pe grafic";
+const String W_WICTEMP      = "Pictograme deasupra temperaturii";
+const String W_SOFTUPD      = "Actualizare software";
+const String W_SOFTLOAD     = "Incarcare ";
+const String W_SOFTPROG     = "Actualizare in curs";
+const String W_SOFTFAIL     = "Actualizare a esuat, repornirea dispozitivului";
+const String W_SOFTSTART    = "Incepe actualizarea";
+const String W_SOFTCPL      = "Actualizare finalizata, repornirea dispozitivului";
 #endif
 
 // LC_TIME
@@ -65,35 +78,35 @@ const String W_WICTEMP      = "Icons above temperature";
 // Note to Translators:
 //   The LC_TIME definitions are included in the localedata/locales directory of
 //   the glibc source tree, in files named after the locale codes and encoding
-//   schemes. For example, the en_US locale data is stored in the
-//   localedata/locales/en_US file, which contains the definitions for date and
+//   schemes. For example, the fr_FR locale data is stored in the
+//   localedata/locales/fr_FR file, which contains the definitions for date and
 //   time formats, month and day names, and other time-related settings for the
 //   LC_TIME category.
 //   https://www.gnu.org/software/libc/sources.html
 // D_T_FMT                 string for formatting date and time
-const char *LC_D_T_FMT     = "%a %d %b %Y %T %Z";
+const char *LC_D_T_FMT     = "%a %d %b %Y %T";
 // LC_D_FMT                date format string
 const char *LC_D_FMT       = "%d/%m/%y";
 // T_FMT                   time format string
 const char *LC_T_FMT       = "%T";
 // T_FMT_AMPM              a.m. or p.m. time format string
-const char *LC_T_FMT_AMPM  = "%l:%M:%S %P %Z";
+const char *LC_T_FMT_AMPM  = "";
 // AM_STR                  Ante Meridian affix
-const char *LC_AM_STR      = "am";
+const char *LC_AM_STR      = "";
 // PM_STR                  Post Meridian affix
-const char *LC_PM_STR      = "pm";
+const char *LC_PM_STR      = "";
 // DAY_{1-7}               name of the n-th day of the week
-const char *LC_DAY[7]      = {"Sunday", "Monday", "Tuesday", "Wednesday",
-                              "Thursday", "Friday", "Saturday"};
-// ABDAY_{1-7}             abbreviated name of the n-th day of the week
-const char *LC_ABDAY[7]    = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+const char *LC_DAY[7]      = {"Duminica", "Luni", "Marti", "Miercuri", 
+                              "Joi", "Vineri", "Sambata"};
+// ABDAY_{1-7}             abbreviated ame of the n-th day of the week
+const char *LC_ABDAY[7]    = {"Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sam"};
 // MON_{1-12}              name of the n-th month of the year
-const char *LC_MON[12]     = {"January",    "February", "March",    "April",
-                               "May",       "June",     "July",     "August",
-                               "September", "October",  "November", "December"};
+const char *LC_MON[12]     = {"Ianuarie", "Februarie", "Martie", "Aprilie", 
+                               "Mai",       "Iunie",     "Iulie",     "August", 
+                               "Septembrie", "Octombrie",  "Noiembrie", "Decembrie"};
 // ABMON_{1-12}            abbreviated name of the n-th month of the year
-const char *LC_ABMON[12]   = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+const char *LC_ABMON[12]   = {"Ian", "Feb", "Mar", "Apr", "Mai", "Iun", 
+                              "Iul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 // ERA                     era description segments
 const char *LC_ERA         = "";
 // ERA_D_FMT               era date format string
@@ -104,43 +117,43 @@ const char *LC_ERA_D_T_FMT = "";
 const char *LC_ERA_T_FMT   = "";
 
 // OWM LANGUAGE
-// For full list of languages, see
+// For full list of languages, see 
 // https://openweathermap.org/api/one-call-api#multi
 // Note: "[only] The contents of the 'description' field will be translated."
-const String OWM_LANG = "en";
+const String OWM_LANG = "ro";
 
 // CURRENT CONDITIONS
-const char *TXT_FEELS_LIKE         = "Feels Like";
-const char *TXT_SUNRISE            = "Sunrise";
-const char *TXT_SUNSET             = "Sunset";
-const char *TXT_WIND               = "Wind";
-const char *TXT_HUMIDITY           = "Humidity";
-const char *TXT_UV_INDEX           = "UV Index";
-const char *TXT_PRESSURE           = "Pressure";
-const char *TXT_AIR_QUALITY        = "Air Quality";
-const char *TXT_AIR_POLLUTION      = "Air Pollution";
-const char *TXT_VISIBILITY         = "Visibility";
-const char *TXT_INDOOR_TEMPERATURE = "Temperature";
-const char *TXT_INDOOR_HUMIDITY    = "Humidity";
+const char *TXT_FEELS_LIKE         = "Se Simte Ca";
+const char *TXT_SUNRISE            = "Rasarit";
+const char *TXT_SUNSET             = "Apus";
+const char *TXT_WIND               = "Vant";
+const char *TXT_HUMIDITY           = "Umiditate";
+const char *TXT_UV_INDEX           = "Indice UV";
+const char *TXT_PRESSURE           = "Presiune";
+const char *TXT_AIR_QUALITY        = "Calitatea Aerului";
+const char *TXT_AIR_POLLUTION      = "Poluarea Aerului";
+const char *TXT_VISIBILITY         = "Vizibilitate";
+const char *TXT_INDOOR_TEMPERATURE = "Temperatura";
+const char *TXT_INDOOR_HUMIDITY    = "Umiditate";
 
 // UV INDEX
-const char *TXT_UV_LOW       = "Low";
-const char *TXT_UV_MODERATE  = "Moderate";
-const char *TXT_UV_HIGH      = "High";
-const char *TXT_UV_VERY_HIGH = "Very High";
-const char *TXT_UV_EXTREME   = "Extreme";
+const char *TXT_UV_LOW       = "Scazut";
+const char *TXT_UV_MODERATE  = "Moderat";
+const char *TXT_UV_HIGH      = "Crescut";
+const char *TXT_UV_VERY_HIGH = "Foarte Crescut";
+const char *TXT_UV_EXTREME   = "Periculos";
 
 // WIFI
-const char *TXT_WIFI_EXCELLENT     = "Excellent";
-const char *TXT_WIFI_GOOD          = "Good";
-const char *TXT_WIFI_FAIR          = "Fair";
-const char *TXT_WIFI_WEAK          = "Weak";
-const char *TXT_WIFI_NO_CONNECTION = "No Connection";
+const char *TXT_WIFI_EXCELLENT     = "Excelent";
+const char *TXT_WIFI_GOOD          = "Bun";
+const char *TXT_WIFI_FAIR          = "Normal";
+const char *TXT_WIFI_WEAK          = "Slab";
+const char *TXT_WIFI_NO_CONNECTION = "Fara Conectiune";
 
 // UNIT SYMBOLS - TEMPERATURE
 const char *TXT_UNITS_TEMP_KELVIN     = "K";
-const char *TXT_UNITS_TEMP_CELSIUS    = "\xB0""C";
-const char *TXT_UNITS_TEMP_FAHRENHEIT = "\xB0""F";
+const char *TXT_UNITS_TEMP_CELSIUS    = "\260" "C";
+const char *TXT_UNITS_TEMP_FAHRENHEIT = "\260" "F";
 // UNIT SYMBOLS - WIND SPEED
 const char *TXT_UNITS_SPEED_METERSPERSECOND   = "m/s";
 const char *TXT_UNITS_SPEED_FEETPERSECOND     = "ft/s";
@@ -155,8 +168,8 @@ const char *TXT_UNITS_PRES_MILLIMETERSOFMERCURY     = "mmHg";
 const char *TXT_UNITS_PRES_INCHESOFMERCURY          = "inHg";
 const char *TXT_UNITS_PRES_MILLIBARS                = "mbar";
 const char *TXT_UNITS_PRES_ATMOSPHERES              = "atm";
-const char *TXT_UNITS_PRES_GRAMSPERSQUARECENTIMETER = "g/cm\xB2";
-const char *TXT_UNITS_PRES_POUNDSPERSQUAREINCH      = "lb/in\xB2";
+const char *TXT_UNITS_PRES_GRAMSPERSQUARECENTIMETER = "g/cm\262";
+const char *TXT_UNITS_PRES_POUNDSPERSQUAREINCH      = "lb/in\262";
 // UNITS - VISIBILITY DISTANCE
 const char *TXT_UNITS_DIST_KILOMETERS = "km";
 const char *TXT_UNITS_DIST_MILES      = "mi";
@@ -211,8 +224,8 @@ const char *TXT_CRIT_LOW_BATTERY_VOLTAGE = "Critically low battery voltage!";
 // Here are a few examples, uncomment the array for your region (or create your
 // own).
 // const std::vector<String> ALERT_URGENCY = {"outlook", "statement", "watch", "advisory", "warning", "emergency"}; // US National Weather Service
-const std::vector<String> ALERT_URGENCY = {"yellow", "amber", "red"};                 // United Kingdom's national weather service (MET Office)
-// const std::vector<String> ALERT_URGENCY = {"minor", "moderate", "severe", "extreme"}; // METEO
+// const std::vector<String> ALERT_URGENCY = {"yellow", "amber", "red"};                 // United Kingdom's national weather service (MET Office)
+const std::vector<String> ALERT_URGENCY = {"minor", "moderate", "severe", "extreme"}; // METEO
 // const std::vector<String> ALERT_URGENCY = {}; // Disable urgency interpretation (algorithm will fallback to only prefer the most recently issued alerts)
 
 // ALERT TERMINOLOGY
@@ -280,7 +293,7 @@ extern "C" {
 //   HONG_KONG_AQHI       INDIA_AQI            CHINA_AQI
 //   SINGAPORE_PSI        SOUTH_KOREA_CAI      UNITED_KINGDOM_DAQI
 //   UNITED_STATES_AQI
-const aqi_scale_t AQI_SCALE = UNITED_KINGDOM_DAQI;
+const aqi_scale_t AQI_SCALE = EUROPEAN_UNION_CAQI;
 
 const char *AUSTRALIA_AQI_TXT[6] =
 {
@@ -300,11 +313,11 @@ const char *CANADA_AQHI_TXT[4] =
 };
 const char *EUROPEAN_UNION_CAQI_TXT[5] =
 {
-  "Very Low",
-  "Low",
-  "Medium",
-  "High",
-  "Very High",
+  "Foarte Scazuta",
+  "Scazuta",
+  "Normala",
+  "Foarte Buna",
+  "Excelenta",
 };
 const char *HONG_KONG_AQHI_TXT[5] =
 {
@@ -372,9 +385,9 @@ const char *COMPASS_POINT_NOTATION[32] = {
 //  90°  101.25°  112.5°  123.75°  135°  146.25°  157.5°  168.75°
    "E",  "EbS",   "ESE",  "SEbE",  "SE", "SEbS",  "SSE",  "SbE",
 // 180°  191.25°  202.5°  213.75°  225°  236.25°  247.5°  258.75°
-   "S",  "SbW",   "SSW",  "SWbS",  "SW", "SWbW",  "WSW",  "WbS",
+   "S",  "SbO",   "SSO",  "SObS",  "SO", "SObO",  "OSO",  "ObS",
 // 270°  281.25°  292.5°  303.75°  315°  326.25°  337.5°  348.75°
-   "W",  "WbN",   "WNW",  "NWbW",  "NW", "NWbN",  "NNW",  "NbW",
+   "O",  "ObN",   "ONO",  "NObO",  "NO", "NObN",  "NNO",  "NbO",
 };
 
 // HTTP CLIENT ERRORS
@@ -435,7 +448,7 @@ const char *TXT_HTTP_RESPONSE_414 = "URI Too Long";
 const char *TXT_HTTP_RESPONSE_415 = "Unsupported Media Type";
 const char *TXT_HTTP_RESPONSE_416 = "Range Not Satisfiable";
 const char *TXT_HTTP_RESPONSE_417 = "Expectation Failed";
-const char *TXT_HTTP_RESPONSE_418 = "I'm a teapot";
+const char *TXT_HTTP_RESPONSE_418 = "I am a teapot";
 const char *TXT_HTTP_RESPONSE_421 = "Misdirected Request";
 const char *TXT_HTTP_RESPONSE_422 = "Unprocessable Content";
 const char *TXT_HTTP_RESPONSE_423 = "Locked";

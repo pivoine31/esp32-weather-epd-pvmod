@@ -40,7 +40,6 @@ extern const String W_RETURN;
 extern const String W_EXIT;
 extern const String W_UPDATE;
 extern const String W_MOD_DONE;
-extern const String W_PARM_REINIT;
 extern const String W_ACT_DONE_MAJ;
 extern const String W_ACT_DONE_SLP;
 extern const String W_SUBMIT;
@@ -60,6 +59,12 @@ extern const String W_WTOREC;
 extern const String W_RERFLG;
 extern const String W_WICFLG;
 extern const String W_WICTEMP;
+extern const String W_SOFTUPD;
+extern const String W_SOFTLOAD;
+extern const String W_SOFTPROG;
+extern const String W_SOFTFAIL;
+extern const String W_SOFTSTART;
+extern const String W_SOFTCPL;
 #endif
 
 // LC_TIME

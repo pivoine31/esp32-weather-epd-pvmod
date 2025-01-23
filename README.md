@@ -11,12 +11,13 @@ This repository contains an update of the Luke Marzen ESP32 Weather station soft
 - [asdf1qaz contribution] battery threshold (config.cpp) modified to increase lipo battery life
   (see https://oscarliang.com/wp-content/uploads/2017/02/Lipo-battery-guide-Voltage-vs-capacity-used-percentage.jpg for guidelines)
 - [asdf1qaz contribution] battery voltage multiplier made customizable in config.h to permit adjustement after multimeter check  
-- [domp27 contribution] display weather icons on the graph on a per hour basis; the feature is controlled through the Web parameters page - two possible vertical positions for the icons)  
+- [domp27 contribution] display weather icons on the graph on a per hour basis; the feature is controlled through the Web parameters page - two possible vertical positions for the icons)
 - [Stelian Hurghis (RedShuriken)] contribution for adding Romanian language
 
 In the modified code, most of the customization options are moved to config.h
 
 Using the Web server requires to identify a means for waking-up the station in web server mode: by default, this is triggered by hitting the internal button
+(the URL https://www.printables.com/fr/model/929910-esp32-weather-base-remix-and-lmarzen-modified-soft provides a box remix compatible with the use of the internal FireBeetle button) 
 
 Others alternatives are:
 - using a touch pin connected to a metallic thing accessible from the outside (probably the best alternative when the internal button is not accessible)
@@ -36,11 +37,13 @@ Once the Web server is started, a specific icon is displayed in the upper left c
 The Web server terminates itself after 3 min without activity (by default), when the button is pressed again, or through "exit" on Web pages
 
 When no Wifi network is available, and the Web button is pressed, the weather station acts as an Access Point (SSID "ESP32-Meteo", password "Weather.32"); the Web server is acceeded in this case at address 192.168.4.1 in HTTP mode. The  "No Wifi" page is displayed, but with an icon in the upper left indicating Web access availability
-
-If not interested by the Web server, there is a custom option in config.h to disable it (#undef WEB_SVR, or remove, or comment). Doing this, you may still enable the "automatic pop switch", and the "pop and vol" features
+This permits in particular to enter the wifi credentials initially
 
 This software remix does no longer need tuning the TIMEZONE and using NTP for time synchronization since the OWM service responses provides both the time information and the time offset relative to GMT based on the selected geographic location (lat/lon)
 
 Otherwise, config.h may be customized as usual, relying on the indications found in comments
 
-Last word: the URL https://www.printables.com/fr/model/929910-esp32-weather-base-remix-and-lmarzen-modified-soft provides a box remix compatible with the use of the internal FireBeetle button 
+23/01/2025 added OTA (On The Air) software upload
+- arduino mode : platformio upload the compiled software through Wifi
+  to enable this mode, the station IP address (or mDns name) shall be declared appropriately in platform.ini (see comments i this file)
+- web page mode : a new page is added to select then upload the compiled software (usually firmware.bin under platformio\.pio\build\dfrobot_firebeetle2_esp32e)

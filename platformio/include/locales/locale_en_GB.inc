@@ -1,4 +1,4 @@
-/* French France locale data for esp32-weather-epd.
+/* British English locale data for esp32-weather-epd.
  * Copyright (C) 2022-2024  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,56 +15,53 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* Special thanks to Luc Sanchez (ColonelMoutarde) for contributing this
- * translation.
- *
- * If you have any feedback or suggestions on translations, please open an issue
- * on this project's github page:
- * <https://github.com/lmarzen/esp32-weather-epd/issues>
- */
-
 #include "_locale.h"
 #include <vector>
 #include <Arduino.h>
 
 #ifdef WEB_SVR
 // Translation for Web server messages
-const String W_PAGENOTFOUND = "Page inconnue";
-const String W_INVALKEY     = "Erreur: cl\351 invalide";
-const String W_WEATHER      = "M\351t\351o";
-const String W_PARMM        = "Param\350tres M\351t\351o";
-const String W_PARMW        = "Param\350tres Wifi";
-const String W_PARMV        = "Param\350tres G\351n\351raux";
-const String W_CLNMEM       = "Nettoyage m\351moire non volatile";
-const String W_REINITM      = "R\351init Param\350tres M\351t\351o";
-const String W_REINITW      = "R\351init Param\350tres Wifi";
-const String W_REINITV      = "R\351init Param\350tres G\351n\351raux";
-const String W_RETURNM      = "Retour page Param\350tres M\351t\351o";
-const String W_RETURNW      = "Retour page Param\350tres Wifi";
-const String W_RETURNV      = "Retour page Param\350tres G\351n\351raux";
-const String W_RETURN       = "Retour";
-const String W_EXIT         = "Sortie";
-const String W_UPDATE       = "Sortie et mise \340 jour";
-const String W_MOD_DONE     = "Modification r\351alis\351e";
-const String W_PARM_REINIT  = "Erreur : param\351trage r\351initialis\351";
-const String W_ACT_DONE_MAJ = "Action r\351alis\351e ; mise \340 jour dans ";
-const String W_ACT_DONE_SLP = "Action r\351alis\351e ; passage en mode sommeil";
-const String W_SUBMIT       = "Valider";
-const String W_KEY          = "Cl\351";
-const String W_POPTHR       = "Seuil POP";
-const String W_BEDTIM       = "Heure d'arr\352t";
-const String W_WAKTIM       = "Heure de r\351veil ";
-const String W_SLPDLY       = "Intervalle r\351veil";
-const String W_HOURNB       = "Taille graphe";
-const String W_MAJMIN       = "Intervalle maj min";
-const String W_WEBDLY       = "Dur\351e de vie serveur";
-const String W_HTO          = "Tempo requ\352tes OWM";
-const String W_WATO         = "Tempo Wifi par AP";
-const String W_WGTO         = "Tempo Wifi globale";
-const String W_WTOREC       = "Conseil: (Tempo Wifi globale) >= (Tempo par AP) * (Nombre de AP)";
-const String W_RERFLG       = "Affichage des erreurs";
-const String W_WICFLG       = "Icones sur le graphe";
-const String W_WICTEMP      = "Au dessus de la temperature";
+const String W_PAGENOTFOUND = "Page not found";
+const String W_INVALKEY     = "Error: invalid key";
+const String W_WEATHER      = "Weather";
+const String W_PARMM        = "Weather parameters";
+const String W_PARMW        = "Wifi parameters";
+const String W_PARMV        = "General parameters";
+const String W_CLNMEM       = "Cleanup non volatile storage";
+const String W_REINITM      = "Weather parm reinit";
+const String W_REINITW      = "Wifi parm reinit";
+const String W_REINITV      = "General parm reinit";
+const String W_RETURNM      = "Back to Weather page";
+const String W_RETURNW      = "Back to Wifi page";
+const String W_RETURNV      = "Back to General parm page";
+const String W_RETURN       = "Back";
+const String W_EXIT         = "Exit";
+const String W_UPDATE       = "Exit and update";
+const String W_MOD_DONE     = "Modification done";
+const String W_ACT_DONE_MAJ = "Action done; update in ";
+const String W_ACT_DONE_SLP = "Action done; going back to sleep";
+const String W_SUBMIT       = "Submit";
+const String W_KEY          = "Key";
+const String W_POPTHR       = "POP threshold";
+const String W_BEDTIM       = "Bed time";
+const String W_WAKTIM       = "Wake time";
+const String W_SLPDLY       = "Update interval";
+const String W_HOURNB       = "Graph size";
+const String W_MAJMIN       = "Min update interval";
+const String W_WEBDLY       = "Max serveur lifetime";
+const String W_HTO          = "OWM request timeout";
+const String W_WATO         = "Wifi per AP timeout";
+const String W_WGTO         = "Wifi global timeout";
+const String W_WTOREC       = "Recom: (Wifi global TO) >= (Per AP TO) * (AP number)";
+const String W_RERFLG       = "Display errors messages";
+const String W_WICFLG       = "Display graph icons";
+const String W_WICTEMP      = "Icons above temperature"; 
+const String W_SOFTUPD      = "Software update";
+const String W_SOFTLOAD     = "Uploading ";
+const String W_SOFTPROG     = "Update in progress";
+const String W_SOFTFAIL     = "Update failed, device rebooting";
+const String W_SOFTSTART    = "Update starting";
+const String W_SOFTCPL      = "Update completed, device rebooting";
 #endif
 
 // LC_TIME
@@ -73,35 +70,35 @@ const String W_WICTEMP      = "Au dessus de la temperature";
 // Note to Translators:
 //   The LC_TIME definitions are included in the localedata/locales directory of
 //   the glibc source tree, in files named after the locale codes and encoding
-//   schemes. For example, the fr_FR locale data is stored in the
-//   localedata/locales/fr_FR file, which contains the definitions for date and
+//   schemes. For example, the en_US locale data is stored in the
+//   localedata/locales/en_US file, which contains the definitions for date and
 //   time formats, month and day names, and other time-related settings for the
 //   LC_TIME category.
 //   https://www.gnu.org/software/libc/sources.html
 // D_T_FMT                 string for formatting date and time
-const char *LC_D_T_FMT     = "%a %d %b %Y %T";
+const char *LC_D_T_FMT     = "%a %d %b %Y %T %Z";
 // LC_D_FMT                date format string
 const char *LC_D_FMT       = "%d/%m/%y";
 // T_FMT                   time format string
 const char *LC_T_FMT       = "%T";
 // T_FMT_AMPM              a.m. or p.m. time format string
-const char *LC_T_FMT_AMPM  = "";
+const char *LC_T_FMT_AMPM  = "%l:%M:%S %P %Z";
 // AM_STR                  Ante Meridian affix
-const char *LC_AM_STR      = "";
+const char *LC_AM_STR      = "am";
 // PM_STR                  Post Meridian affix
-const char *LC_PM_STR      = "";
+const char *LC_PM_STR      = "pm";
 // DAY_{1-7}               name of the n-th day of the week
-const char *LC_DAY[7]      = {"dimanche", "lundi", "mardi", "mercredi", 
-                              "jeudi", "vendredi", "samedi"};
-// ABDAY_{1-7}             abbreviated ame of the n-th day of the week
-const char *LC_ABDAY[7]    = {"dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."};
+const char *LC_DAY[7]      = {"Sunday", "Monday", "Tuesday", "Wednesday",
+                              "Thursday", "Friday", "Saturday"};
+// ABDAY_{1-7}             abbreviated name of the n-th day of the week
+const char *LC_ABDAY[7]    = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 // MON_{1-12}              name of the n-th month of the year
-const char *LC_MON[12]     = {"janvier", "f\351vrier", "mars", "avril", 
-                               "mai",       "juin",     "juillet",     "ao\373t", 
-                               "septembre", "octobre",  "novembre", "d\351cembre"};
+const char *LC_MON[12]     = {"January",    "February", "March",    "April",
+                               "May",       "June",     "July",     "August",
+                               "September", "October",  "November", "December"};
 // ABMON_{1-12}            abbreviated name of the n-th month of the year
-const char *LC_ABMON[12]   = {"janv.", "f\351vr.", "mars", "avril", "mai", "juin", 
-                              "juil.", "ao\373t", "sept.", "oct.", "nov.", "d\351c."};
+const char *LC_ABMON[12]   = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 // ERA                     era description segments
 const char *LC_ERA         = "";
 // ERA_D_FMT               era date format string
@@ -112,43 +109,43 @@ const char *LC_ERA_D_T_FMT = "";
 const char *LC_ERA_T_FMT   = "";
 
 // OWM LANGUAGE
-// For full list of languages, see 
+// For full list of languages, see
 // https://openweathermap.org/api/one-call-api#multi
 // Note: "[only] The contents of the 'description' field will be translated."
-const String OWM_LANG = "fr";
+const String OWM_LANG = "en";
 
 // CURRENT CONDITIONS
-const char *TXT_FEELS_LIKE         = "Ressentie";
-const char *TXT_SUNRISE            = "Lever de soleil";
-const char *TXT_SUNSET             = "Coucher";
-const char *TXT_WIND               = "Vent";
-const char *TXT_HUMIDITY           = "Humidit\351";
-const char *TXT_UV_INDEX           = "Indice UV";
-const char *TXT_PRESSURE           = "Pression";
-const char *TXT_AIR_QUALITY        = "Qualit\351 de l'air";
-const char *TXT_AIR_POLLUTION      = "Pollution de l'air";
-const char *TXT_VISIBILITY         = "Visibilit\351";
-const char *TXT_INDOOR_TEMPERATURE = "Temp\351rature";
-const char *TXT_INDOOR_HUMIDITY    = "Humidit\351";
+const char *TXT_FEELS_LIKE         = "Feels Like";
+const char *TXT_SUNRISE            = "Sunrise";
+const char *TXT_SUNSET             = "Sunset";
+const char *TXT_WIND               = "Wind";
+const char *TXT_HUMIDITY           = "Humidity";
+const char *TXT_UV_INDEX           = "UV Index";
+const char *TXT_PRESSURE           = "Pressure";
+const char *TXT_AIR_QUALITY        = "Air Quality";
+const char *TXT_AIR_POLLUTION      = "Air Pollution";
+const char *TXT_VISIBILITY         = "Visibility";
+const char *TXT_INDOOR_TEMPERATURE = "Temperature";
+const char *TXT_INDOOR_HUMIDITY    = "Humidity";
 
 // UV INDEX
-const char *TXT_UV_LOW       = "Bas";
-const char *TXT_UV_MODERATE  = "Moder\351";
-const char *TXT_UV_HIGH      = "Haut";
-const char *TXT_UV_VERY_HIGH = "Tr\350s haut";
-const char *TXT_UV_EXTREME   = "Extr\352me";
+const char *TXT_UV_LOW       = "Low";
+const char *TXT_UV_MODERATE  = "Moderate";
+const char *TXT_UV_HIGH      = "High";
+const char *TXT_UV_VERY_HIGH = "Very High";
+const char *TXT_UV_EXTREME   = "Extreme";
 
 // WIFI
 const char *TXT_WIFI_EXCELLENT     = "Excellent";
-const char *TXT_WIFI_GOOD          = "Bon";
-const char *TXT_WIFI_FAIR          = "Juste";
-const char *TXT_WIFI_WEAK          = "Faible";
-const char *TXT_WIFI_NO_CONNECTION = "Pas de Connection";
+const char *TXT_WIFI_GOOD          = "Good";
+const char *TXT_WIFI_FAIR          = "Fair";
+const char *TXT_WIFI_WEAK          = "Weak";
+const char *TXT_WIFI_NO_CONNECTION = "No Connection";
 
 // UNIT SYMBOLS - TEMPERATURE
 const char *TXT_UNITS_TEMP_KELVIN     = "K";
-const char *TXT_UNITS_TEMP_CELSIUS    = "\260" "C";
-const char *TXT_UNITS_TEMP_FAHRENHEIT = "\260" "F";
+const char *TXT_UNITS_TEMP_CELSIUS    = "\xB0""C";
+const char *TXT_UNITS_TEMP_FAHRENHEIT = "\xB0""F";
 // UNIT SYMBOLS - WIND SPEED
 const char *TXT_UNITS_SPEED_METERSPERSECOND   = "m/s";
 const char *TXT_UNITS_SPEED_FEETPERSECOND     = "ft/s";
@@ -163,8 +160,8 @@ const char *TXT_UNITS_PRES_MILLIMETERSOFMERCURY     = "mmHg";
 const char *TXT_UNITS_PRES_INCHESOFMERCURY          = "inHg";
 const char *TXT_UNITS_PRES_MILLIBARS                = "mbar";
 const char *TXT_UNITS_PRES_ATMOSPHERES              = "atm";
-const char *TXT_UNITS_PRES_GRAMSPERSQUARECENTIMETER = "g/cm\262";
-const char *TXT_UNITS_PRES_POUNDSPERSQUAREINCH      = "lb/in\262";
+const char *TXT_UNITS_PRES_GRAMSPERSQUARECENTIMETER = "g/cm\xB2";
+const char *TXT_UNITS_PRES_POUNDSPERSQUAREINCH      = "lb/in\xB2";
 // UNITS - VISIBILITY DISTANCE
 const char *TXT_UNITS_DIST_KILOMETERS = "km";
 const char *TXT_UNITS_DIST_MILES      = "mi";
@@ -219,8 +216,8 @@ const char *TXT_CRIT_LOW_BATTERY_VOLTAGE = "Critically low battery voltage!";
 // Here are a few examples, uncomment the array for your region (or create your
 // own).
 // const std::vector<String> ALERT_URGENCY = {"outlook", "statement", "watch", "advisory", "warning", "emergency"}; // US National Weather Service
-// const std::vector<String> ALERT_URGENCY = {"yellow", "amber", "red"};                 // United Kingdom's national weather service (MET Office)
-const std::vector<String> ALERT_URGENCY = {"minor", "moderate", "severe", "extreme"}; // METEO
+const std::vector<String> ALERT_URGENCY = {"yellow", "amber", "red"};                 // United Kingdom's national weather service (MET Office)
+// const std::vector<String> ALERT_URGENCY = {"minor", "moderate", "severe", "extreme"}; // METEO
 // const std::vector<String> ALERT_URGENCY = {}; // Disable urgency interpretation (algorithm will fallback to only prefer the most recently issued alerts)
 
 // ALERT TERMINOLOGY
@@ -288,88 +285,88 @@ extern "C" {
 //   HONG_KONG_AQHI       INDIA_AQI            CHINA_AQI
 //   SINGAPORE_PSI        SOUTH_KOREA_CAI      UNITED_KINGDOM_DAQI
 //   UNITED_STATES_AQI
-const aqi_scale_t AQI_SCALE = EUROPEAN_UNION_CAQI;
+const aqi_scale_t AQI_SCALE = UNITED_KINGDOM_DAQI;
 
 const char *AUSTRALIA_AQI_TXT[6] =
 {
-  "Tr\350s bon",
-  "Bon",
-  "Juste",
-  "Mauvais",
-  "Tr\350s mauvais",
-  "Dangereux",
+  "Very Good",
+  "Good",
+  "Fair",
+  "Poor",
+  "Very Poor",
+  "Hazardous",
 };
 const char *CANADA_AQHI_TXT[4] =
 {
-  "Bas",
-  "Mod\351r\351",
-  "Haut",
-  "Tr\350s haut",
+  "Low",
+  "Moderate",
+  "High",
+  "Very High",
 };
 const char *EUROPEAN_UNION_CAQI_TXT[5] =
 {
-  "Tr\350s bas",
-  "Bas",
-  "Moyen",
-  "Haut",
-  "Tr\350s haut",
+  "Very Low",
+  "Low",
+  "Medium",
+  "High",
+  "Very High",
 };
 const char *HONG_KONG_AQHI_TXT[5] =
 {
-  "Bas",
-  "Mod\351r\351",
-  "Haut",
-  "Tr\350s haut",
-  "Dangereux",
+  "Low",
+  "Moderate",
+  "High",
+  "Very High",
+  "Hazardous",
 };
 const char *INDIA_AQI_TXT[6] =
 {
-  "Bon",
-  "Satisfaisant",
-  "Mod\351r\351",
-  "Mauvais",
-  "Tr\350s mauvais",
-  "S\351v\350re",
+  "Good",
+  "Satisfactory",
+  "Moderate",
+  "Poor",
+  "Very Poor",
+  "Severe",
 };
 const char *CHINA_AQI_TXT[6] =
 {
   "Excellent",
-  "Bon",
-  "L\351g\350rement pollu\351",
-  "Mod\351r\351ment pollu\351",
-  "Tr\350s pollu\351",
-  "S\351v\350rement pollu\351",
+  "Good",
+  "Lightly Polluted",
+  "Moderately Polluted",
+  "Heavily Polluted",
+  "Severely Polluted",
 };
 const char *SINGAPORE_PSI_TXT[5] =
 {
-  "Bon",
-  "Mod\351r\351",
-  "Malsain",
-  "Tr\350s malsain",
-  "Dangereux",
+  "Good",
+  "Moderate",
+  "Unhealthy",
+  "Very Unhealthy",
+  "Hazardous",
 };
 const char *SOUTH_KOREA_CAI_TXT[4] =
 {
-  "Bon",
-  "Moyen",
-  "Malsain",
-  "Tr\350s malsain",
+  "Good",
+  "Medium",
+  "Unhealthy",
+  "Very Unhealthy",
 };
 const char *UNITED_KINGDOM_DAQI_TXT[4] =
 {
-  "Bas",
-  "Mod\351r\351",
-  "Haut",
-  "Tr\350s haut",
+  "Low",
+  "Moderate",
+  "High",
+  "Very High",
 };
 const char *UNITED_STATES_AQI_TXT[6] =
 {
-  "Bon",
-  "Mod\351r\351",
-  "Malsain pour les groupes sensibles",
-  "Malsain",
-  "Tr\350s malsain",
-  "Dangereux",
+  "Good",
+  "Moderate",
+  "Unhealthy for Sensitive Groups",
+  "Unhealthy",
+  "Very Unhealthy",
+  "Hazardous",
 };
 } // end extern "C"
 
@@ -380,9 +377,9 @@ const char *COMPASS_POINT_NOTATION[32] = {
 //  90°  101.25°  112.5°  123.75°  135°  146.25°  157.5°  168.75°
    "E",  "EbS",   "ESE",  "SEbE",  "SE", "SEbS",  "SSE",  "SbE",
 // 180°  191.25°  202.5°  213.75°  225°  236.25°  247.5°  258.75°
-   "S",  "SbO",   "SSO",  "SObS",  "SO", "SObO",  "OSO",  "ObS",
+   "S",  "SbW",   "SSW",  "SWbS",  "SW", "SWbW",  "WSW",  "WbS",
 // 270°  281.25°  292.5°  303.75°  315°  326.25°  337.5°  348.75°
-   "O",  "ObN",   "ONO",  "NObO",  "NO", "NObN",  "NNO",  "NbO",
+   "W",  "WbN",   "WNW",  "NWbW",  "NW", "NWbN",  "NNW",  "NbW",
 };
 
 // HTTP CLIENT ERRORS

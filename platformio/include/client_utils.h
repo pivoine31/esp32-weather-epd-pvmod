@@ -33,6 +33,7 @@
  */
 void retrieve_config ( void );
 void web_svr_setup   ( void );
+int  net_loop        ( void );
 
 extern String VLoc[];
 extern String VLat[];
