@@ -47,4 +47,5 @@ Otherwise, config.h may be customized as usual, relying on the indications found
 - arduino mode : platformio upload the compiled software through Wifi
   to enable this mode, the station IP address (or mDns name) shall be declared appropriately in platform.ini (see comments i this file)
 - web page mode : a new page is added to select then upload the compiled software (usually firmware.bin under platformio\.pio\build\dfrobot_firebeetle2_esp32e)
+
 Note that these modes require the Web server function
