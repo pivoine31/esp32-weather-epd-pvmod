@@ -602,6 +602,7 @@ void drawCurrentConditions(const owm_current_t &current,
   display.setFont(&FONT_12pt8b);
   if (!std::isnan(inTemp))
   {
+#ifdef BEFORE_TEMP_DECIMAL
 #ifdef UNITS_TEMP_KELVIN
     dataStr = String(static_cast<int>(std::round(celsius_to_kelvin(inTemp))));
 #endif
@@ -612,6 +613,20 @@ void drawCurrentConditions(const owm_current_t &current,
     dataStr = String(static_cast<int>(
               std::round(celsius_to_fahrenheit(inTemp))));
 #endif
+#else // BEFORE_TEMP_DECIMAL
+    float curTemp;
+#ifdef UNITS_TEMP_KELVIN
+    curTemp = celsius_to_kelvin(inTemp);
+#endif
+#ifdef UNITS_TEMP_CELSIUS
+    curTemp = inTemp;
+#endif
+#ifdef UNITS_TEMP_FAHRENHEIT
+    curTemp = celsius_to_fahrenheit(inTemp);
+#endif
+    dataStr = String(static_cast<int>(std::round(celsius_to_fahrenheit(curTemp)))) + "." +
+              String(static_cast<int>(std::round(celsius_to_fahrenheit(curTemp)*10))%10);
+#endif // BEFORE_TEMP_DECIMAL
   }
   else
   {
@@ -1561,7 +1576,7 @@ void drawOutlookGraph(owm_hourly_t *const hourly, int tz_off) // AUTO_TZ
     _strftime(timeBuffer, sizeof(timeBuffer), HOUR_FORMAT, timeInfo);
     drawString(xTick, yPos1 + 1 + 12 + 4 + 3, timeBuffer, CENTER);
   }
-  
+
   return;
 } // end drawOutlookGraph
 
