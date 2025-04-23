@@ -624,8 +624,8 @@ void drawCurrentConditions(const owm_current_t &current,
 #ifdef UNITS_TEMP_FAHRENHEIT
     curTemp = celsius_to_fahrenheit(inTemp);
 #endif
-    dataStr = String(static_cast<int>(std::round(celsius_to_fahrenheit(curTemp)))) + "." +
-              String(static_cast<int>(std::round(celsius_to_fahrenheit(curTemp)*10))%10);
+    dataStr = String(static_cast<int>(std::round(curTemp))) + "." +
+              String(static_cast<int>(std::round((curTemp)*10))%10);
 #endif // BEFORE_TEMP_DECIMAL
   }
   else
