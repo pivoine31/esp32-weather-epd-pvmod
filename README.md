@@ -13,10 +13,10 @@ This repository contains an update of the Luke Marzen ESP32 Weather station soft
 - [asdf1qaz contribution] battery voltage multiplier made customizable in config.h to permit adjustement after multimeter check  
 - [domp27 contribution] display weather icons on the graph on a per hour basis; the feature is controlled through the Web parameters page - two possible vertical positions for the icons)
 - [Stelian Hurghis (RedShuriken)] contribution for adding Romanian language
-- Ability to upload software using one of the OTA modes (through Wifi)
+- Ability to upload software using one of the OTA modes (through Wi-Fi)
 
-In the modified code, most of the customization options are moved to config.h
-The indications below give some tips on how to configure the new features
+In the modified code, most of the customization options are moved to config.h.
+The indications below give some tips on how to configure the new features.
 Anyway, config.h may be customized as in the L Marzen software, relying on the indications found in comments
 
 MORE ON THE WEB SERVER SUPPORT
@@ -28,30 +28,28 @@ Others alternatives are:
 - using a touch pin connected to a metallic thing accessible from the outside (probably the best alternative when the internal button is not accessible)
 - using a custom button other than the internal one (connected with a pullup resistor to the esp32)
 
-Once the station is Wake-Up (displaying a "world" icon at the upper left), the Web server it acceeded :
-+ using the mDns name : http://Weather32.local ("Weather32" may be changed through HNAME in config.h)
-+ or if it fails, using the IP address : http://<station-ip>
+Once the station is Wake-Up (displaying a "world" icon at the upper left), the Web server is acceeded by:
++ using the mDns name: http://Weather32.local ("Weather32" may be changed through HNAME in config.h).
++ or if it fails, using the IP address: http://A.B.C.D (where A.B.C.D is the station-ip)
 however, in this case, it is necessary to detect the station address using a network scanner (or sometimes on the admin pages of the Internel box)
 
 The first page displayed asks for a key. It defaults to 0000 (may be changed through WEBKEY in config.h)
 
-Examples of provided Web pages are given in show.mod directory
+Sample Web pages captures are given in "show.mod" directory
 
 If not interested by the Web server, there is a custom option in config.h to disable it (comment or #undef WEB_SVR).
 Doing this, the "automatic pop switch", the "pop and vol" features and the "weather icons hourly" are still available
 
-Concerning the Wifi credentials and the location :
+Concerning the Wi-Fi credentials and the location:
 - if Web server is not used, the location (DEFLAT / DEFLON / DEFCITY) and one credential (WIFI_SSI1 / WIFI_PWD1) needs to be defined (in the section "WEB SERVER NOT USED")
 - if Web server is used, default values for the location (DEFLAT / DEFLON / DEFCITY) and the credential (WIFI_SSI1 / WIFI_PWD1) may be either left empty, or may be defined (in the section "WEB SERVER USED")
 
 If any (wifi/location) value is defined, it is used as a default value: it is setup initially in first (wifi/location) entry and reinstated every time the parameters are reset
 
-Once the Web server is started, a specific icon (World) is displayed in the upper left corner and the Web pages may be acceeded using the IP of the station as URL (HTTP, because HTTPS not supported for this purpose)
-
 The Web server terminates itself after 3 min without activity (by default, see DEF_MAXACT_TIM value), when the button is pressed again, or through "exit" on Web pages
 
-When no Wifi network is available, and the Web button is pressed, the weather station acts as an Access Point (SSID "ESP32-Meteo", password "Weather.32"); the Web server is acceeded in this case at address 192.168.4.1 in HTTP mode (or using the mDns name). The  "No Wifi" page is displayed, but with an icon in the upper left indicating Web access availability.
-This permits in particular to enter the Wifi credentials initially
+When no Wi-Fi network is available, and the Web button is pressed, the weather station acts as an Access Point (SSID "ESP32-Meteo", password "Weather.32"); the Web server is acceeded in this case at address 192.168.4.1 in HTTP mode (or using the mDns name). The  "No Wi-Fi" page is displayed, but with an icon in the upper left indicating Web access availability.
+This permits in particular to enter the Wi-Fi credentials initially
 
 AUTOMATIC TIMEZONE
 
@@ -59,10 +57,10 @@ This software remix does no longer need tuning the TIMEZONE and using NTP for ti
 
 OTA SUPPORT
 
-The software may be uploaded using OTA (On The Air) in one of the following modes (requiring the Web server function) :
-  - arduino mode : platformio upload the compiled software through Wifi
+The software may be uploaded using OTA (On The Air) in one of the following modes (requiring the Web server function):
+  - arduino mode: platformio upload the compiled software through Wi-Fi
     to enable this mode, the station IP address (or mDns name) shall be declared appropriately in platform.ini (see comments in the [upload] section)
-  - web page mode : a new page is added to select then upload the compiled software (usually firmware.bin under platformio\.pio\build\dfrobot_firebeetle2_esp32e)
+  - web page mode: a new page is added to select then upload the compiled software (usually firmware.bin under platformio\.pio\build\dfrobot_firebeetle2_esp32e)
 
 NEW IN THIS VERSION (V6 15/06/2026)
 (for a complete history, see history.xlsx)
@@ -73,6 +71,6 @@ NEW IN THIS VERSION (V6 15/06/2026)
 + In case of HTTP error, wake-up interval is shortened to 60 sec to permit a quick recovery (however, this is limited to 10 consecutives intervals)
  
 HINTS
-+ Entering USB download mode :
++ Entering USB download mode:
  When uploading using USB, to enter boot mode, press and release the reset button when "connecting ..." appears (need to be quick because the sequence does not last long)
-+ Setting-up the download mode (USB or OTA arduino mode) is done through the [upload] section in platform.ini (see comments)
++ Setting-up the download mode (USB or OTA arduino mode) is done through the [upload] section in platform.ini (see comments in this file)
