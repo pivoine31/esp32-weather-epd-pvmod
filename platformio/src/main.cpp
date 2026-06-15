@@ -1,5 +1,5 @@
 /* Main program for esp32-weather-epd.
- * Copyright (C) 2022-2024  Luke Marzen
+ * Copyright (C) 2022-2026  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
 #include <Arduino.h>
-#include <Adafruit_BME280.h>
 #include <Adafruit_Sensor.h>
 #include <Preferences.h>
 #include <time.h>
@@ -30,12 +30,23 @@
 #include "display_utils.h"
 #include "icons/icons_196x196.h"
 #include "renderer.h"
+
+#if defined(SENSOR_BME280)
+  #include <Adafruit_BME280.h>
+#endif
+#if defined(SENSOR_BME680)
+  #include <Adafruit_BME680.h>
+#endif
+
 #if defined(USE_HTTPS_WITH_CERT_VERIF) || defined(USE_HTTPS_NO_CERT_VERIF)
   #include <WiFiClientSecure.h>
 #endif
 #ifdef USE_HTTPS_WITH_CERT_VERIF
   #include "cert.h"
 #endif
+
+#define HTTP_MAX_ERROR_CNT 10
+#define HTTP_RETRY_DLY     60ULL
 
 // Too large to allocate locally on stack
 static owm_resp_onecall_t       owm_onecall;
@@ -49,6 +60,12 @@ unsigned long actionTime;
 // When set means Web server started but with no display update
 // (i.e. error while report-error flag disabled)
 int SilentErr = 0;
+
+// Indicate last HTTP call was in error
+int HttpError = 0;
+
+// Count the number of retries after an HTTP error
+int MaxErrorCnt = HTTP_MAX_ERROR_CNT;
 
 /*
  * restart_wdg
@@ -110,6 +127,15 @@ void beginDeepSleep(tm *timeInfo)
   uint64_t sleepDuration = 0;
   int extraHoursUntilWake = 0;
   int curHour = timeInfo->tm_hour;
+
+  if ( HttpError && MaxErrorCnt && --MaxErrorCnt )
+  {
+    // In case of HTTP error, retry quickly a certain number of time
+    sleepDuration = HTTP_RETRY_DLY;
+    Serial.printf("HTTP error: quick wake mode, wake-delay=%lldsec, retry-left=%d\n",
+                  sleepDuration, MaxErrorCnt+1);
+    do_deep_sleep(sleepDuration * 1000ULL);
+  }
 
   if (timeInfo->tm_min >= 58)
   { // if we are within 2 minutes of the next hour, then round up for the
@@ -368,6 +394,7 @@ void setup()
   /* AUTO_TZ no need for time synchronisation */
 
   // MAKE API REQUESTS
+  HttpError = 0;
 #ifdef USE_HTTP
   WiFiClient client;
 #elif defined(USE_HTTPS_NO_CERT_VERIF)
@@ -375,12 +402,15 @@ void setup()
   client.setInsecure();
 #elif defined(USE_HTTPS_WITH_CERT_VERIF)
   WiFiClientSecure client;
-  client.setCACert(cert_Sectigo_RSA_Domain_Validation_Secure_Server_CA);
+  client.setCACert(cert_Sectigo_Public_Server_Authentication_Root_R46);
 #endif
   int rxStatus = getOWMonecall(client, owm_onecall);
   if (rxStatus != HTTP_CODE_OK)
+  {
     // Attempt a second time before given up (transient error)
+    delay(10000);
     rxStatus = getOWMonecall(client, owm_onecall);
+  }
   if (rxStatus != HTTP_CODE_OK)
   {
     killWiFi();
@@ -397,12 +427,16 @@ void setup()
       powerOffDisplay();
     }
 
+    HttpError = 1;
     beginDeepSleep(&timeInfo);
   }
   rxStatus = getOWMairpollution(client, owm_air_pollution, owm_onecall.current.dt); /* AUTO_TZ */
   if (rxStatus != HTTP_CODE_OK)
+  {
     // Attempt a second time before given up (transient error)
+    delay(10000);
     rxStatus = getOWMairpollution(client, owm_air_pollution, owm_onecall.current.dt); /* AUTO_TZ */
+  }
   if (rxStatus != HTTP_CODE_OK)
   {
     killWiFi();
@@ -418,6 +452,8 @@ void setup()
       while (display.nextPage());
       powerOffDisplay();
     }
+
+    HttpError = 1;
     beginDeepSleep(&timeInfo);
   }
 #ifdef WEB_SVR
@@ -425,18 +461,43 @@ void setup()
     killWiFi(); // WiFi no longer needed
 #endif
 
+  // HTTP succeeded, reset the error counter
+  MaxErrorCnt = HTTP_MAX_ERROR_CNT;
+
   // GET INDOOR TEMPERATURE AND HUMIDITY, start BME280...
   pinMode(PIN_BME_PWR, OUTPUT);
   digitalWrite(PIN_BME_PWR, HIGH);
   float inTemp     = NAN;
   float inHumidity = NAN;
-  Serial.print(String(TXT_READING_FROM) + " BME280... ");
+
   TwoWire I2C_bme = TwoWire(0);
+  I2C_bme.begin(PIN_BME_SDA, PIN_BME_SCL, 100000); // 100kHz
+
+#if defined(SENSOR_BME280)
+  Serial.println(String(TXT_READING_FROM) + " BME280... ");
   Adafruit_BME280 bme;
 
-  I2C_bme.begin(PIN_BME_SDA, PIN_BME_SCL, 100000); // 100kHz
   if(bme.begin(BME_ADDRESS, &I2C_bme))
   {
+#ifdef BEFORE_FORCED_MODE
+#else
+    //BME280 weather station settings corresponding to datasheet
+    bme.setSampling(Adafruit_BME280::MODE_FORCED, // Force reading after delayTime
+                    Adafruit_BME280::SAMPLING_X1,   // Temperature sampling set to 1
+                    Adafruit_BME280::SAMPLING_X1,   // Pressure sampling set to 1
+                    Adafruit_BME280::SAMPLING_X1,   // Humidity sampling set to 1
+                    Adafruit_BME280::FILTER_OFF);   // Filter off - immediate 100% step response
+    bme.takeForcedMeasurement();
+#endif
+#endif // SENSOR_BME280
+
+#if defined(SENSOR_BME680)
+  Serial.print(String(TXT_READING_FROM) + " BME680... ");
+  Adafruit_BME680 bme(&I2C_bme);
+
+  if(bme.begin(BME_ADDRESS))
+  {
+#endif // SENSOR_BME680
     inTemp     = bme.readTemperature(); // Celsius
     inHumidity = bme.readHumidity();    // %
 
@@ -451,6 +512,31 @@ void setup()
     }
     else
     {
+//#define seaLevelPressure (1013.25) // sea level pressure at your location
+#define seaLevelPressure (1021) // sea level pressure at your location
+
+      Serial.print("Temperature = ");
+      Serial.print(inTemp);
+      if ( TEMP_OFF )
+      {
+        inTemp += TEMP_OFF;
+        Serial.print(" -> ");
+        Serial.print(inTemp);
+      }
+      Serial.println(" °C");
+    
+      Serial.print("Humidity = ");
+      Serial.print(inHumidity);
+      Serial.println(" %");
+    
+      Serial.print("Pressure = ");
+      Serial.print(bme.readPressure() / 100.0F);
+      Serial.println(" hPa");
+ 
+      Serial.print("Altitude = ");
+      Serial.print(bme.readAltitude(seaLevelPressure));
+      Serial.println(" m");
+
       Serial.println(TXT_SUCCESS);
     }
   }
@@ -483,7 +569,8 @@ void setup()
 			  owm_onecall.timezone_offset);  // AUTO_TZ
     drawForecast(owm_onecall.daily, timeInfo);
     drawLocationDate(CITY_STRING, dateStr);
-    drawOutlookGraph(owm_onecall.hourly,owm_onecall.timezone_offset); // AUTO_TZ
+    drawOutlookGraph(owm_onecall.hourly, owm_onecall.daily,
+		     owm_onecall.timezone_offset); // AUTO_TZ
 #if DISPLAY_ALERTS
     drawAlerts(owm_onecall.alerts, CITY_STRING, dateStr);
 #endif

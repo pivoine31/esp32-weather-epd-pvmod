@@ -1,5 +1,5 @@
 /* American English locale data for esp32-weather-epd.
- * Copyright (C) 2022-2024  Luke Marzen
+ * Copyright (C) 2022-2026  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ const String W_ACT_DONE_SLP = "Action done; going back to sleep";
 const String W_SUBMIT       = "Submit";
 const String W_KEY          = "Key";
 const String W_POPTHR       = "POP threshold";
+const String W_TOFF         = "Temp. offset";
 const String W_BEDTIM       = "Bed time";
 const String W_WAKTIM       = "Wake time";
 const String W_SLPDLY       = "Update interval";
@@ -118,6 +119,8 @@ const String OWM_LANG = "en";
 const char *TXT_FEELS_LIKE         = "Feels Like";
 const char *TXT_SUNRISE            = "Sunrise";
 const char *TXT_SUNSET             = "Sunset";
+const char *TXT_MOONRISE           = "Moonrise";
+const char *TXT_MOONSET            = "Moonset";
 const char *TXT_WIND               = "Wind";
 const char *TXT_HUMIDITY           = "Humidity";
 const char *TXT_UV_INDEX           = "UV Index";
@@ -127,6 +130,18 @@ const char *TXT_AIR_POLLUTION      = "Air Pollution";
 const char *TXT_VISIBILITY         = "Visibility";
 const char *TXT_INDOOR_TEMPERATURE = "Temperature";
 const char *TXT_INDOOR_HUMIDITY    = "Humidity";
+const char *TXT_DEWPOINT           = "Dew Point";
+
+// MOON PHASE
+const char *TXT_MOONPHASE       = "Moon Phase";
+const char *TXT_NEW_MOON        = "New Moon";
+const char *TXT_WAXING_CRESCENT = "Waxing Crescent";
+const char *TXT_FIRST_QUARTER   = "First Quarter";
+const char *TXT_WAXING_GIBBOUS  = "Waxing Gibbous";
+const char *TXT_FULL_MOON       = "Full Moon";
+const char *TXT_WANING_GIBBOUS  = "Waning Gibbous";
+const char *TXT_THIRD_QUARTER   = "Last Quarter";
+const char *TXT_WANING_CRESCENT = "Waning Crescent";
 
 // UV INDEX
 const char *TXT_UV_LOW       = "Low";
@@ -162,9 +177,13 @@ const char *TXT_UNITS_PRES_MILLIBARS                = "mbar";
 const char *TXT_UNITS_PRES_ATMOSPHERES              = "atm";
 const char *TXT_UNITS_PRES_GRAMSPERSQUARECENTIMETER = "g/cm\262";
 const char *TXT_UNITS_PRES_POUNDSPERSQUAREINCH      = "lb/in\262";
-// UNITS - VISIBILITY DISTANCE
+// UNITS SYMBOLS - VISIBILITY DISTANCE
 const char *TXT_UNITS_DIST_KILOMETERS = "km";
 const char *TXT_UNITS_DIST_MILES      = "mi";
+// UNITS SYMBOLS - PRECIPITATION
+const char *TXT_UNITS_PRECIP_MILLIMETERS = "mm";
+const char *TXT_UNITS_PRECIP_CENTIMETERS = "cm";
+const char *TXT_UNITS_PRECIP_INCHES      = "in";
 
 // MISCELLANEOUS MESSAGES
 // Title Case
@@ -236,15 +255,15 @@ const std::vector<String> TERM_BIOHAZARD =
     {"biohazard", "biological hazard"};
 const std::vector<String> TERM_EARTHQUAKE =
     {"earthquake"};
-const std::vector<String> TERM_TSUNAMI =
-    {"tsunami", "surf"};
 const std::vector<String> TERM_FIRE =
     {"fire", "red flag"};
 const std::vector<String> TERM_HEAT =
     {"heat"};
 const std::vector<String> TERM_WINTER =
-    {"blizzard", "winter", "ice", "snow", "sleet", "cold", "freezing rain",
-     "wind chill", "freeze", "frost", "hail"};
+    {"blizzard", "winter", "ice", "icy", "snow", "sleet", "cold",
+     "freezing rain", "wind chill", "freeze", "frost", "hail"};
+const std::vector<String> TERM_TSUNAMI =
+    {"tsunami", "surf"};
 const std::vector<String> TERM_LIGHTNING =
     {"thunderstorm", "storm cell", "pulse storm", "squall line", "supercell",
      "lightning"};
@@ -272,7 +291,7 @@ const std::vector<String> TERM_HURRICANE =
 const std::vector<String> TERM_DUST =
     {"dust", "sand"};
 const std::vector<String> TERM_STRONG_WIND =
-    {"wind"};
+    {"wind", "monsoon"};
 
 // AIR QUALITY INDEX
 extern "C" {

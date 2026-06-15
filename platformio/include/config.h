@@ -1,5 +1,5 @@
 /* Configuration option declarations for esp32-weather-epd.
- * Copyright (C) 2022-2025  Luke Marzen
+ * Copyright (C) 2022-2026  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +46,7 @@
 
 // WIFI_MULTI feature
 // Use Multi credential WIFI
+
 // Host name on network / Soft AP SSID
 // Shall not exceed 15 characters
 #define HNAME "Weather32"
@@ -164,6 +165,7 @@ extern String VLoc[];
 extern String VLat[];
 extern String VLon[];
 extern float  PopTh;
+extern float  Toff;
 extern long   SleepDly;
 extern int    BedTime;
 extern int    WakeTime;
@@ -216,7 +218,7 @@ extern unsigned long startTime;
 
 #endif // WEB_SVR
 
-// Define hours of last update (DEFBEDà until wake time (DEFWAKE)
+// Define hours of last update (DEFBED) until wake time (DEFWAKE)
 // If bed time == wake time, then this battery saving feature is disabled
 // (range: [0-23])
 #define DEFBED         0
@@ -239,7 +241,10 @@ extern unsigned long startTime;
 // Indicates the percentage of graph filling from which the 
 // draw pattern density is decreased (default to 65 %)
 // Value 1.0 disable the feature
-#define PRECIP_THRESHOLD 0.65f
+#define DEF_PRECIP_THR 0.65f
+
+// Offset apply to the temperature read from sensor (sometimes not accurate)
+#define DEF_TEMP_OFF 0.0f
 
 // WIFI
 // WIFI_MULTI
@@ -307,6 +312,15 @@ extern unsigned long startTime;
 #define DRIVER_DESPI_C02
 // #define DRIVER_WAVESHARE
 
+// INDOOR ENVIRONMENT SENSOR
+// Uncomment the macro that identifies your sensor.
+#define SENSOR_BME280
+// #define SENSOR_BME680
+
+// If you encounter issues with the BME280 sensor showing no data, uncomment and
+// add a small delay before reading it's value. 300ms seems to work for most people
+// #define SENSOR_INIT_DELAY_MS 300
+
 // 3 COLOR E-INK ACCENT COLOR
 // Defines the 3rd color to be used when a 3+ color display is selected.
 #if defined(DISP_3C_B) || defined(DISP_7C_F)
@@ -329,8 +343,10 @@ extern unsigned long startTime;
 //   Estonian (Estonia)              et_EE
 //   Finnish (Finland)               fi_FI
 //   French (France)                 fr_FR
+//   Italiano (Italia)               it_IT
 //   Dutch (Belgium)                 nl_BE
 //   Portuguese (Brazil)             pt_BR
+//   Spanish (Spain)                 es_ES
 //   Romanian (Romania)              ro_RO
 #define LOCALE en_US
 
@@ -462,7 +478,7 @@ extern unsigned long startTime;
 // (uncomment exactly one)
 // #define USE_HTTP
 // #define USE_HTTPS_NO_CERT_VERIF
-#define USE_HTTPS_WITH_CERT_VERIF
+#define USE_HTTPS_WITH_CERT_VERIF // REQUIRES MANUAL UPDATE WHEN CERT EXPIRES
 
 // WIND DIRECTION INDICATOR
 // Choose whether the wind direction indicator should be an arrow, number, or
@@ -503,6 +519,39 @@ extern unsigned long startTime;
 // #define WIND_ICONS_TERTIARY_INTERCARDINAL
 // #define WIND_ICONS_360
 
+// WIDGET POSITIONS
+// Set the order of current condition you want to display
+// in the following order
+//  0   1
+//  2   3
+//  4   5
+//  6   7
+//  8   9
+// if DISP_BW_V1 is used, 6,7,8,9 are not available
+#define POS_SUNRISE     0
+#define POS_SUNSET      1
+#define POS_WIND        2
+#define POS_HUMIDITY    3
+#define POS_UVI         4
+#define POS_PRESSURE    5
+#define POS_AIR_QULITY  6
+// Replace vivibility by Moophase
+//#define POS_VISIBILITY  7
+#define POS_MOONPHASE   7
+#define POS_INTEMP      8
+#define POS_INHUMIDITY  9
+// #define POS_MOONRISE    2
+// #define POS_MOONSET     3
+// #define POS_MOONPHASE   4
+// #define POS_DEWPOINT    5
+
+// Choose the style of moon phase icon you like
+//   Primary     : dark color means where the moon is
+//   Alternative : dark color means where the shadow is
+// Uncomment your preferred moon phase style.
+// #define MOONPHASE_PRIMARY
+#define MOONPHASE_ALTERNATIVE
+
 // FONTS
 // A handful of popular Open Source typefaces have been included with this
 // project for your convenience. Change the font by selecting its corresponding
@@ -533,6 +582,15 @@ extern unsigned long startTime;
 //   other artifacts.
 #define FONT_HEADER "fonts/FreeSans.h"
 
+// FORECAST TEMPERATURE ORDER
+// The order of temperture Hi|Lo can optionally be configured using
+// the following options.
+//   HL   : High | Low
+//   LH   : Low | High
+//
+#define TEMP_ORDER_HL
+// #define TEMP_ORDER_LH
+
 // DAILY PRECIPITATION
 // Daily precipitation indicated under Hi|Lo can optionally be configured using
 // the following options.
@@ -540,6 +598,13 @@ extern unsigned long startTime;
 //   1 : Enable (show always)
 //   2 : Smart (show only when precipitation is forecasted)
 #define DISPLAY_DAILY_PRECIP 2
+
+// HOURLY WEATHER ICONS
+// Weather icons to be displayed on the temperature and precipitation chart.
+// They are drawn at the the x-axis tick marks just above the temperature line
+//   0 : Disable
+//   1 : Enable
+#define DISPLAY_HOURLY_ICONS 1
 
 // ALERTS
 //   The handling of alerts is complex. Each country has a unique national alert
@@ -553,8 +618,10 @@ extern unsigned long startTime;
 // STATUS BAR EXTRAS
 //   Extra information that can be displayed on the status bar. Set to 1 to
 //   enable.
-#define STATUS_BAR_EXTRAS_BAT_VOLTAGE 1
-#define STATUS_BAR_EXTRAS_WIFI_RSSI   1
+#define STATUS_BAR_EXTRAS_BAT_PERCENTAGE 1
+#define STATUS_BAR_EXTRAS_BAT_VOLTAGE    1
+#define STATUS_BAR_EXTRAS_WIFI_STRENGTH  1
+#define STATUS_BAR_EXTRAS_WIFI_RSSI      1
 
 // BATTERY MONITORING
 //   You may choose to power your weather display with or without a battery.
@@ -605,6 +672,8 @@ extern const String OWM_ONECALL_VERSION;
 #define WIFI_TIMEOUT     WifiTimeout
 #define WIFI_AP_TO       WifiAPto
 #define HTTP_CLIENT_TCP_TIMEOUT HttpTimeout
+#define PRECIP_THRESHOLD PopTh
+#define TEMP_OFF         Toff
 
 #else // WEB_SVR
 extern const String LAT;
@@ -617,18 +686,21 @@ extern const int HOURLY_GRAPH_MAX;
 extern const unsigned int WIFI_AP_TO;
 extern const unsigned long WIFI_TIMEOUT;
 extern const unsigned HTTP_CLIENT_TCP_TIMEOUT;
+extern const float PRECIP_THRESHOLD;
+extern const float TEMP_OFF;
 #endif // WEB_SVR
 extern const char *TIME_FORMAT;
 extern const char *HOUR_FORMAT;
 extern const char *DATE_FORMAT;
 extern const char *REFRESH_TIME_FORMAT;
-extern const uint32_t MAX_BATTERY_VOLTAGE;
 extern const uint32_t WARN_BATTERY_VOLTAGE;
 extern const uint32_t LOW_BATTERY_VOLTAGE;
 extern const uint32_t VERY_LOW_BATTERY_VOLTAGE;
 extern const uint32_t CRIT_LOW_BATTERY_VOLTAGE;
 extern const unsigned long LOW_BATTERY_SLEEP_INTERVAL;
 extern const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL;
+extern const uint32_t MAX_BATTERY_VOLTAGE;
+extern const uint32_t MIN_BATTERY_VOLTAGE;
 
 // CONFIG VALIDATION - DO NOT MODIFY
 #if !(  defined(DISP_BW_V2)  \
@@ -640,6 +712,10 @@ extern const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL;
 #if !(  defined(DRIVER_WAVESHARE) \
       ^ defined(DRIVER_DESPI_C02))
   #error Invalid configuration. Exactly one driver board must be selected.
+#endif
+#if !(  defined(SENSOR_BME280) \
+      ^ defined(SENSOR_BME680))
+  #error Invalid configuration. Exactly one sensor must be selected.
 #endif
 #if !(defined(LOCALE))
   #error Invalid configuration. Locale not selected.
@@ -677,6 +753,10 @@ extern const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL;
       ^ defined(UNITS_HOURLY_PRECIP_INCHES))
   #error Invalid configuration. Exactly one hourly precipitation measurement must be selected.
 #endif
+#if !(  defined(TEMP_ORDER_HL)      \
+      ^ defined(TEMP_ORDER_LH))
+  #error Invalid configuration. Exactly one temperature order must be selected.
+#endif
 #if !(  defined(UNITS_DAILY_PRECIP_POP)         \
       ^ defined(UNITS_DAILY_PRECIP_MILLIMETERS) \
       ^ defined(UNITS_DAILY_PRECIP_CENTIMETERS) \
@@ -713,6 +793,9 @@ extern const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL;
 #if !(defined(DISPLAY_DAILY_PRECIP))
   #error Invalid configuration. DISPLAY_DAILY_PRECIP not defined.
 #endif
+#if !(defined(DISPLAY_HOURLY_ICONS))
+  #error Invalid configuration. DISPLAY_HOURLY_ICONS not defined.
+#endif
 #if !(defined(DISPLAY_ALERTS))
   #error Invalid configuration. DISPLAY_ALERTS not defined.
 #endif
@@ -721,6 +804,10 @@ extern const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL;
 #endif
 #if !(defined(DEBUG_LEVEL))
   #error Invalid configuration. DEBUG_LEVEL not defined.
+#endif
+#if !(  defined(MOONPHASE_PRIMARY)  \
+      ^ defined(MOONPHASE_ALTERNATIVE))
+  #error Invalid configuration. Exactly one moon phase style must be selected.
 #endif
 
 #endif

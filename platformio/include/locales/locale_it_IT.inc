@@ -1,4 +1,4 @@
-/* Finnish locale data for esp32-weather-epd.
+/* Italian locale data for esp32-weather-epd.
  * Copyright (C) 2022-2026  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* Special thanks to Lassi Lappalainen (Runweasel) for contributing this
+/* Special thanks to Massimo Saccani (Supergiovane) for contributing this
  * translation.
  *
  * If you have any feedback or suggestions on translations, please open an issue
@@ -28,7 +28,7 @@
 #include <Arduino.h>
 
 #ifdef WEB_SVR
-// Translation for Web server messages (TO BE TRANSLATED)
+// Translation for Web server messages (TO BE DONE)
 const String W_PAGENOTFOUND = "Page not found";
 const String W_INVALKEY     = "Error: invalid key";
 const String W_WEATHER      = "Weather";
@@ -79,35 +79,35 @@ const String W_SOFTCPL      = "Update completed, device rebooting";
 // Note to Translators:
 //   The LC_TIME definitions are included in the localedata/locales directory of
 //   the glibc source tree, in files named after the locale codes and encoding
-//   schemes. For example, the en_US locale data is stored in the
-//   localedata/locales/en_US file, which contains the definitions for date and
+//   schemes. For example, the fr_FR locale data is stored in the
+//   localedata/locales/fr_FR file, which contains the definitions for date and
 //   time formats, month and day names, and other time-related settings for the
 //   LC_TIME category.
 //   https://www.gnu.org/software/libc/sources.html
 // D_T_FMT                 string for formatting date and time
-const char *LC_D_T_FMT     = "%a %e. %Bta %Y %H.%M.%S";
+const char *LC_D_T_FMT     = "%a %-d %b %Y, %T";
 // LC_D_FMT                date format string
-const char *LC_D_FMT       = "%d.%m.%Y";
+const char *LC_D_FMT       = "%d/%m/%y";
 // T_FMT                   time format string
-const char *LC_T_FMT       = "%H.%M.%S";
+const char *LC_T_FMT       = "%T";
 // T_FMT_AMPM              a.m. or p.m. time format string
-const char *LC_T_FMT_AMPM  = "%H.%M.%S %p";
+const char *LC_T_FMT_AMPM  = "";
 // AM_STR                  Ante Meridian affix
-const char *LC_AM_STR      = "AM";
+const char *LC_AM_STR      = "";
 // PM_STR                  Post Meridian affix
-const char *LC_PM_STR      = "PM";
+const char *LC_PM_STR      = "";
 // DAY_{1-7}               name of the n-th day of the week
-const char *LC_DAY[7]      = {"Sunnuntai", "Maanantai", "Tiistai", "Keskiviikko",
-                              "Torstai", "Perjantai", "Lauantai"};
-// ABDAY_{1-7}             abbreviated name of the n-th day of the week
-const char *LC_ABDAY[7]    = {"Su", "Ma", "Ti", "Ke", "To", "Pe", "La"};
+const char *LC_DAY[7]      = {"domenica",   "luned\354",  "marted\354", "mercoled\354",
+                              "gioved\354", "venerd\354", "sabato"};
+// ABDAY_{1-7}             abbreviated ame of the n-th day of the week
+const char *LC_ABDAY[7]    = {"dom", "lun", "mar", "mer", "gio", "ven", "sab"};
 // MON_{1-12}              name of the n-th month of the year
-const char *LC_MON[12]     = {"Tammikuu",  "Helmikuu",   "Maaliskuu",   "Huhtikuu",
-                               "Toukokuu", "Kes\xE4kuu", "Hein\xE4kuu", "Elokuu",
-                               "Syyskuu",  "Lokakuu",    "Marraskuu",   "Joulukuu"};
+const char *LC_MON[12]     = {"gennaio",   "febbraio", "marzo",    "aprile",
+                              "maggio",    "giugno",   "luglio",   "agosto",
+                              "settembre", "ottobre",  "novembre", "dicembre"};
 // ABMON_{1-12}            abbreviated name of the n-th month of the year
-const char *LC_ABMON[12]   = {"Tammi",   "Helmi", "Maalis", "Huhti", "Touko",  "Kes\xE4",
-                              "Hein\xE4", "Elo",  "Syys",   "Loka",  "Marras", "Joulu"};
+const char *LC_ABMON[12]   = {"gen", "feb", "mar", "apr", "mag", "giu",
+                              "lug", "ago", "set", "ott", "nov", "dic"};
 // ERA                     era description segments
 const char *LC_ERA         = "";
 // ERA_D_FMT               era date format string
@@ -121,49 +121,49 @@ const char *LC_ERA_T_FMT   = "";
 // For full list of languages, see
 // https://openweathermap.org/api/one-call-api#multi
 // Note: "[only] The contents of the 'description' field will be translated."
-const String OWM_LANG = "fi";
+const String OWM_LANG = "it";
 
 // CURRENT CONDITIONS
-const char *TXT_FEELS_LIKE         = "Tuntuu kuin";
-const char *TXT_SUNRISE            = "Auringon nousu";
-const char *TXT_SUNSET             = "Auringon lasku";
-const char *TXT_MOONRISE           = "Kuut\xF5usu";
-const char *TXT_MOONSET	           = "Kuunlasku";
-const char *TXT_WIND               = "Tuuli";
-const char *TXT_HUMIDITY           = "Ilmankosteus";
-const char *TXT_UV_INDEX           = "UV-indeksi";
-const char *TXT_PRESSURE           = "Ilmanpaine";
-const char *TXT_AIR_QUALITY        = "Ilman Laatu";
-const char *TXT_AIR_POLLUTION      = "Ilmansaaste";
-const char *TXT_VISIBILITY         = "N\xE4kyvyys";
-const char *TXT_INDOOR_TEMPERATURE = "L\xE4mp\xF6tila";
-const char *TXT_INDOOR_HUMIDITY    = "Ilmankosteus";
-const char *TXT_DEWPOINT           = "Kastepiste";
+const char *TXT_FEELS_LIKE         = "Percepiti";
+const char *TXT_SUNRISE            = "Alba";
+const char *TXT_SUNSET             = "Tramonto";
+const char *TXT_MOONRISE           = "Sorgere della Luna";
+const char *TXT_MOONSET            = "Tramonto della Luna";
+const char *TXT_WIND               = "Vento";
+const char *TXT_HUMIDITY           = "Umidit\340";
+const char *TXT_UV_INDEX           = "Indice UV";
+const char *TXT_PRESSURE           = "Pressione";
+const char *TXT_AIR_QUALITY        = "Qualit\340 dell'aria";
+const char *TXT_AIR_POLLUTION      = "Inquinamento aria";
+const char *TXT_VISIBILITY         = "Visibilit\340";
+const char *TXT_INDOOR_TEMPERATURE = "Temperatura int.";
+const char *TXT_INDOOR_HUMIDITY    = "Umidit\340 int.";
+const char *TXT_DEWPOINT           = "Punto di rugiada";
 
 // MOON PHASE
-const char *TXT_MOONPHASE       = "Kuunvaihe";
-const char *TXT_NEW_MOON        = "Uusikuu";
-const char *TXT_WAXING_CRESCENT = "Kasvava puolikuu";
-const char *TXT_FIRST_QUARTER   = "Ensimm\xE4inen nelj\xE4nnes";
-const char *TXT_WAXING_GIBBOUS  = "Kasvava kupera kuu";
-const char *TXT_FULL_MOON       = "T\xE4ysikuu";
-const char *TXT_WANING_GIBBOUS  = "V\xE4henev kupera kuu";
-const char *TXT_THIRD_QUARTER   = "Viimeinen nelj\xE4nnes";
-const char *TXT_WANING_CRESCENT = "V\xE4henev puolikuu";
+const char *TXT_MOONPHASE       = "Fase lunare";
+const char *TXT_NEW_MOON        = "Luna nuova";
+const char *TXT_WAXING_CRESCENT = "Luna crescente";
+const char *TXT_FIRST_QUARTER   = "Primo quarto";
+const char *TXT_WAXING_GIBBOUS  = "Gibbosa crescente";
+const char *TXT_FULL_MOON       = "Luna piena";
+const char *TXT_WANING_GIBBOUS  = "Gibbosa calante";
+const char *TXT_THIRD_QUARTER   = "Ultimo quarto";
+const char *TXT_WANING_CRESCENT = "Luna calante";
 
 // UV INDEX
-const char *TXT_UV_LOW       = "Matala";
-const char *TXT_UV_MODERATE  = "Kohtalainen";
-const char *TXT_UV_HIGH      = "Korkea";
-const char *TXT_UV_VERY_HIGH = "Eritt\xE4in korkea";
-const char *TXT_UV_EXTREME   = "\xC4\xE4rimm\xE4inen";
+const char *TXT_UV_LOW       = "Basso";
+const char *TXT_UV_MODERATE  = "Moderato";
+const char *TXT_UV_HIGH      = "Alto";
+const char *TXT_UV_VERY_HIGH = "Eccessivo";
+const char *TXT_UV_EXTREME   = "Estremo";
 
 // WIFI
-const char *TXT_WIFI_EXCELLENT     = "Erinomainen";
-const char *TXT_WIFI_GOOD          = "Hyv\xE4";
-const char *TXT_WIFI_FAIR          = "Tyydytt\xE4v\xE4";
-const char *TXT_WIFI_WEAK          = "Heikko";
-const char *TXT_WIFI_NO_CONNECTION = "Ei yhteytt\xE4";
+const char *TXT_WIFI_EXCELLENT     = "Eccellente";
+const char *TXT_WIFI_GOOD          = "Buono";
+const char *TXT_WIFI_FAIR          = "Medio";
+const char *TXT_WIFI_WEAK          = "Scarso";
+const char *TXT_WIFI_NO_CONNECTION = "Disconnesso";
 
 // UNIT SYMBOLS - TEMPERATURE
 const char *TXT_UNITS_TEMP_KELVIN     = "K";
@@ -195,10 +195,10 @@ const char *TXT_UNITS_PRECIP_INCHES      = "in";
 
 // MISCELLANEOUS MESSAGES
 // Title Case
-const char *TXT_LOW_BATTERY = "Low Battery";
-const char *TXT_NETWORK_NOT_AVAILABLE = "Network Not Available";
-const char *TXT_TIME_SYNCHRONIZATION_FAILED = "Time Synchronization Failed";
-const char *TXT_WIFI_CONNECTION_FAILED = "WiFi Connection Failed";
+const char *TXT_LOW_BATTERY = "Batteria quasi scarica";
+const char *TXT_NETWORK_NOT_AVAILABLE = "Rete non disponibile";
+const char *TXT_TIME_SYNCHRONIZATION_FAILED = "Sincronizzazione data e ora fallita";
+const char *TXT_WIFI_CONNECTION_FAILED = "Connessione Wi-Fi non riuscita";
 // First Word Capitalized
 const char *TXT_ATTEMPTING_HTTP_REQ = "Attempting HTTP request";
 const char *TXT_AWAKE_FOR = "Awake for";
@@ -312,88 +312,88 @@ extern "C" {
 //   HONG_KONG_AQHI       INDIA_AQI            CHINA_AQI
 //   SINGAPORE_PSI        SOUTH_KOREA_CAI      UNITED_KINGDOM_DAQI
 //   UNITED_STATES_AQI
-const aqi_scale_t AQI_SCALE = UNITED_STATES_AQI;
+const aqi_scale_t AQI_SCALE = EUROPEAN_UNION_CAQI;
 
 const char *AUSTRALIA_AQI_TXT[6] =
 {
-  "Eritt\xE4in hyv\xE4",
-  "Hyv\xE4",
-  "Tyydytt\xE4v\xE4",
-  "Huono",
-  "Eritt\xE4in huono",
-  "Vaarallinen",
+  "Tr\350s bon",
+  "Bon",
+  "Juste",
+  "Mauvais",
+  "Tr\350s mauvais",
+  "Dangereux",
 };
 const char *CANADA_AQHI_TXT[4] =
 {
-  "Matala",
-  "Kohtalainen",
-  "Korkea",
-  "Eritt\xE4in korkea",
+  "Bas",
+  "Mod\351r\351",
+  "Haut",
+  "Tr\350s haut",
 };
 const char *EUROPEAN_UNION_CAQI_TXT[5] =
 {
-  "Eritt\xE4in matala",
-  "Matala",
-  "Keskitaso",
-  "Korkea",
-  "Eritt\xE4in korkea",
+  "Molto basso",
+  "Basso",
+  "Medio",
+  "Alto",
+  "Molto alto",
 };
 const char *HONG_KONG_AQHI_TXT[5] =
 {
-  "Matala",
-  "Kohtalainen",
-  "Korkea",
-  "Eritt\xE4in korkea",
-  "Vaarallinen",
+  "Bas",
+  "Mod\351r\351",
+  "Haut",
+  "Tr\350s haut",
+  "Dangereux",
 };
 const char *INDIA_AQI_TXT[6] =
 {
-  "Hyv\xE4",
-  "Tyydytt\xE4v\xE4",
-  "Kohtalainen",
-  "Huono",
-  "Eritt\xE4in huono",
-  "Vakava",
+  "Bon",
+  "Satisfaisant",
+  "Mod\351r\351",
+  "Mauvais",
+  "Tr\350s mauvais",
+  "S\351v\350re",
 };
 const char *CHINA_AQI_TXT[6] =
 {
-  "Erinomainen",
-  "Hyv\xE4",
-  "V\xE4h\xE4n saastunut",
-  "Kohtuullisesti saastunut",
-  "Voimakkaasti saastunut",
-  "Eritt\xE4in voimakkaasti saastunut",
+  "Excellent",
+  "Bon",
+  "L\351g\350rement pollu\351",
+  "Mod\351r\351ment pollu\351",
+  "Tr\350s pollu\351",
+  "S\351v\350rement pollu\351",
 };
 const char *SINGAPORE_PSI_TXT[5] =
 {
-  "Hyv\xE4",
-  "Kohtalainen",
-  "Ep\xE4terveellinen",
-  "Eritt\xE4in ep\xE4terveellinen",
-  "Vaarallinen",
+  "Bon",
+  "Mod\351r\351",
+  "Malsain",
+  "Tr\350s malsain",
+  "Dangereux",
 };
 const char *SOUTH_KOREA_CAI_TXT[4] =
 {
-  "Hyv\xE4",
-  "Keskitaso",
-  "Ep\xE4terveellinen",
-  "Eritt\xE4in ep\xE4terveellinen",
+  "Bon",
+  "Moyen",
+  "Malsain",
+  "Tr\350s malsain",
 };
 const char *UNITED_KINGDOM_DAQI_TXT[4] =
 {
-  "Matala",
-  "Kohtalainen",
-  "Korkea",
-  "Eritt\xE4in korkea",
+  "Bas",
+  "Mod\351r\351",
+  "Haut",
+  "Tr\350s haut",
 };
 const char *UNITED_STATES_AQI_TXT[6] =
 {
-  "Hyv\xE4",
-  "Kohtalainen",
-  "Ep\xE4terveellinen herkille ryhmille",
-  "Ep\xE4terveellinen",
-  "Eritt\xE4in ep\xE4terveellinen",
-  "Vaarallinen",
+  "Bon",
+  "Mod\351r\351",
+  "Malsain pour les groupes sensibles",
+  "Malsain",
+  "Tr\350s malsain",
+  "Dangereux",
 };
 } // end extern "C"
 
@@ -404,9 +404,9 @@ const char *COMPASS_POINT_NOTATION[32] = {
 //  90°  101.25°  112.5°  123.75°  135°  146.25°  157.5°  168.75°
    "E",  "EbS",   "ESE",  "SEbE",  "SE", "SEbS",  "SSE",  "SbE",
 // 180°  191.25°  202.5°  213.75°  225°  236.25°  247.5°  258.75°
-   "S",  "SbW",   "SSW",  "SWbS",  "SW", "SWbW",  "WSW",  "WbS",
+   "S",  "SbO",   "SSO",  "SObS",  "SO", "SObO",  "OSO",  "ObS",
 // 270°  281.25°  292.5°  303.75°  315°  326.25°  337.5°  348.75°
-   "W",  "WbN",   "WNW",  "NWbW",  "NW", "NWbN",  "NNW",  "NbW",
+   "O",  "ObN",   "ONO",  "NObO",  "NO", "NObN",  "NNO",  "NbO",
 };
 
 // HTTP CLIENT ERRORS

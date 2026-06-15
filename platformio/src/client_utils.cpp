@@ -402,7 +402,11 @@ int    defloc;
 
 // POP threshold
 #define NM_THR "PopTh"
-float  PopTh = PRECIP_THRESHOLD;
+float  PopTh = DEF_PRECIP_THR;
+
+// TEMP offset
+#define NM_TOFF "TempOff"
+float  Toff = DEF_TEMP_OFF;
 
 // BED time
 #define NM_BED "BedTim"
@@ -499,6 +503,7 @@ void clean_nvs ( void )
   }
 
   preferences.putString(NM_THR, String(PopTh));
+  preferences.putString(NM_TOFF, String(Toff));
   preferences.putString(NM_BED, String(BedTime));
   preferences.putString(NM_WAK, String(WakeTime));
   preferences.putString(NM_SLP, String(SleepDly));
@@ -610,6 +615,8 @@ void retrieve_config ( void )
 
   s = preferences.getString(NM_THR, String(PRECIP_THRESHOLD));
   PopTh = s.toFloat();
+  s = preferences.getString(NM_TOFF, String(0));
+  Toff = s.toFloat();
   s = preferences.getString(NM_BED, String(DEFBED));
   BedTime = s.toInt();
   s = preferences.getString(NM_WAK, String(DEFWAKE));
@@ -694,6 +701,8 @@ void reset_parm_config ( void )
 {
   PopTh = PRECIP_THRESHOLD;
   preferences.putString(NM_THR, String(PopTh));
+  Toff = 0;
+  preferences.putString(NM_TOFF, String(Toff));
   BedTime = DEFBED;
   preferences.putString(NM_BED, String(BedTime));
   WakeTime = DEFWAKE;
@@ -1228,6 +1237,10 @@ void web_svr_setup ( void )
         "<input type=\"number\" class=\"num\" id=\"popth\" name=\"" + NM_THR + "\" value=\"" + String(PopTh) + "\" "
           "min=0 max=1 step=0.01>"
         "<label for=\"popth\" class=\"l2\">%</label><br>"
+        "<label for=\"tempoff\" class=\"l1\">"+W_TOFF+"</label>"
+        "<input type=\"number\" class=\"num\" id=\"tempoff\" name=\"" + NM_TOFF + "\" value=\"" + String(Toff) + "\" "
+          "min=-4 max=4 step=0.1>"
+        "<label for=\"tempoff\" class=\"l2\">\260</label><br>"
         "<label for=\"bed\" class=\"l1\">"+W_BEDTIM+"</label>"
         "<input type=\"number\" class=\"num\" id=\"bed\" name=\"" + NM_BED + "\" value=\"" + String(BedTime) + "\" "
           "min=0 max=23 step=1>"
@@ -1292,6 +1305,12 @@ void web_svr_setup ( void )
         PopTh = s.toFloat();
         preferences.putString(NM_THR, String(PopTh));
         Serial.printf("POP Threshold: %f\n", PopTh);
+      }
+      if (request->hasParam(NM_TOFF)) {
+        String s = request->getParam(NM_TOFF)->value();
+        Toff = s.toFloat();
+        preferences.putString(NM_TOFF, String(Toff));
+        Serial.printf("TEMP offset: %f\n", Toff);
       }
       if (request->hasParam(NM_BED)) {
         String s = request->getParam(NM_BED)->value();
@@ -1775,6 +1794,7 @@ void killWiFi()
   WiFi.mode(WIFI_OFF);
 } // killWiFi
 
+#ifdef WEB_SVR
 /*
  * NET_LOOP Perform network treatment during loop
  */
@@ -1793,6 +1813,7 @@ int net_loop ( void )
 
   return 0;
 }
+#endif // WEB_SVR
 
 /*****************************************************/
 /* OWM API ACCESS                                    */

@@ -29,9 +29,9 @@ Others alternatives are:
 - using a custom button other than the internal one (connected with a pullup resistor to the esp32)
 
 Once the station is Wake-Up (displaying a "world" icon at the upper left), the Web server it acceeded :
-+ using the mDns name : http://Weather32.local ("Weather32" may be changed through HNAME in config.h>
++ using the mDns name : http://Weather32.local ("Weather32" may be changed through HNAME in config.h)
 + or if it fails, using the IP address : http://<station-ip>
-however, inb this case, it is necessary to detects the station address using a network scanner (or sometimes on the admin pages of the Internel box)
+however, in this case, it is necessary to detect the station address using a network scanner (or sometimes on the admin pages of the Internel box)
 
 The first page displayed asks for a key. It defaults to 0000 (may be changed through WEBKEY in config.h)
 
@@ -46,12 +46,12 @@ Concerning the Wifi credentials and the location :
 
 If any (wifi/location) value is defined, it is used as a default value: it is setup initially in first (wifi/location) entry and reinstated every time the parameters are reset
 
-Once the Web server is started, a specific icon is displayed in the upper left corner and the Web pages may be acceeded using the IP of the station as URL (HTTP, because HTTPS not supported for this purpose)
+Once the Web server is started, a specific icon (World) is displayed in the upper left corner and the Web pages may be acceeded using the IP of the station as URL (HTTP, because HTTPS not supported for this purpose)
 
 The Web server terminates itself after 3 min without activity (by default, see DEF_MAXACT_TIM value), when the button is pressed again, or through "exit" on Web pages
 
-When no Wifi network is available, and the Web button is pressed, the weather station acts as an Access Point (SSID "ESP32-Meteo", password "Weather.32"); the Web server is acceeded in this case at address 192.168.4.1 in HTTP mode (or using the mDns name). The  "No Wifi" page is displayed, but with an icon in the upper left indicating Web access availability
-This permits in particular to enter the wifi credentials initially
+When no Wifi network is available, and the Web button is pressed, the weather station acts as an Access Point (SSID "ESP32-Meteo", password "Weather.32"); the Web server is acceeded in this case at address 192.168.4.1 in HTTP mode (or using the mDns name). The  "No Wifi" page is displayed, but with an icon in the upper left indicating Web access availability.
+This permits in particular to enter the Wifi credentials initially
 
 AUTOMATIC TIMEZONE
 

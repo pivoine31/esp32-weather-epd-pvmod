@@ -1,5 +1,5 @@
 /* Configuration options for esp32-weather-epd.
- * Copyright (C) 2022-2024  Luke Marzen
+ * Copyright (C) 2022-2026  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ const uint8_t PIN_EPD_PWR  = 26; // Irrelevant if directly connected to 3.3V
 const uint8_t PIN_BME_SDA = 17;
 const uint8_t PIN_BME_SCL = 16;
 const uint8_t PIN_BME_PWR =  4;   // Irrelevant if directly connected to 3.3V
-const uint8_t BME_ADDRESS = 0x76; // If sensor does not work, try 0x77
+const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 
 // Values in DEF* are defined in config.h
 
@@ -71,10 +71,10 @@ const String OWM_ENDPOINT = "api.openweathermap.org";
 // free and allows you to pay only for the number of API calls made to this
 // product.
 //
-// Here is how to subscribe and avoid any credit card changes:
+// Here’s how to subscribe and avoid any credit card changes:
 // - Go to https://home.openweathermap.org/subscriptions/billing_info/onecall_30/base?key=base&service=onecall_30
 // - Follow the instructions to complete the subscription.
-// - /Go to https://home.openweathermap.org/subscriptions and set the "Calls per
+// - Go to https://home.openweathermap.org/subscriptions and set the "Calls per
 //   day (no more than)" to 1,000. This ensures you will never overrun the free
 //   calls.
 const String OWM_ONECALL_VERSION = "3.0";
@@ -93,6 +93,8 @@ const String LON = DEFLON;
 const unsigned int  WIFI_AP_TO = DEF_AP_TIMEOUT;
 const unsigned long WIFI_TIMEOUT = DEF_WIFI_TIMEOUT;
 const unsigned      HTTP_CLIENT_TCP_TIMEOUT = DEF_HTTP_TIMEOUT;
+const float         PRECIP_THRESHOLD = DEF_PRECIP_THR;
+const float         TEMP_OFF = DEF_TEMP_OFF;
 #endif // WEB_SVR
 
 
@@ -131,11 +133,12 @@ const int HOURLY_GRAPH_MAX = DEFHOURNB;
 // begin operating again.
 // [asdf1qaz contribution] modify the threshold to never fall under 3.5V
 // (see https://oscarliang.com/wp-content/uploads/2017/02/Lipo-battery-guide-Voltage-vs-capacity-used-percentage.jpg)
-const uint32_t MAX_BATTERY_VOLTAGE      = 4200; // (millivolts)
-const uint32_t WARN_BATTERY_VOLTAGE     = 3750; // (millivolts)
-const uint32_t LOW_BATTERY_VOLTAGE      = 3700; // (millivolts)
-const uint32_t VERY_LOW_BATTERY_VOLTAGE = 3650; // (millivolts)
-const uint32_t CRIT_LOW_BATTERY_VOLTAGE = 3600; // (millivolts)
+const uint32_t WARN_BATTERY_VOLTAGE     = 3535; // (millivolts) ~20%
+const uint32_t LOW_BATTERY_VOLTAGE      = 3462; // (millivolts) ~10%
+const uint32_t VERY_LOW_BATTERY_VOLTAGE = 3442; // (millivolts)  ~8%
+const uint32_t CRIT_LOW_BATTERY_VOLTAGE = 3404; // (millivolts)  ~5%
 const unsigned long LOW_BATTERY_SLEEP_INTERVAL      = 30;  // (minutes)
 const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL = 120; // (minutes)
-
+// Battery voltage calculations are based on a typical 3.7v LiPo.
+const uint32_t MAX_BATTERY_VOLTAGE = 4200; // (millivolts)
+const uint32_t MIN_BATTERY_VOLTAGE = 3000; // (millivolts)

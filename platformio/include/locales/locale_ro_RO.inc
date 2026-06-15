@@ -1,5 +1,5 @@
 /* Romanian locale data for esp32-weather-epd. 
- * Copyright (C) 2022-2024  Luke Marzen
+ * Copyright (C) 2022-2026  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@ const String W_ACT_DONE_SLP = "Actiune Efectuata; Inapoi in Hibernare";
 const String W_SUBMIT       = "Efectuat";
 const String W_KEY          = "Cheie";
 const String W_POPTHR       = "Nivel POP";
+const String W_TOFF         = "Compensarea temp.";
 const String W_BEDTIM       = "Ora de Culcare";
 const String W_WAKTIM       = "Ora de Trezire";
 const String W_SLPDLY       = "Interval de Update";
@@ -126,6 +127,8 @@ const String OWM_LANG = "ro";
 const char *TXT_FEELS_LIKE         = "Se Simte Ca";
 const char *TXT_SUNRISE            = "Rasarit";
 const char *TXT_SUNSET             = "Apus";
+const char *TXT_MOONRISE           = "Moonrise";
+const char *TXT_MOONSET            = "Moonset";
 const char *TXT_WIND               = "Vant";
 const char *TXT_HUMIDITY           = "Umiditate";
 const char *TXT_UV_INDEX           = "Indice UV";
@@ -135,6 +138,18 @@ const char *TXT_AIR_POLLUTION      = "Poluarea Aerului";
 const char *TXT_VISIBILITY         = "Vizibilitate";
 const char *TXT_INDOOR_TEMPERATURE = "Temperatura";
 const char *TXT_INDOOR_HUMIDITY    = "Umiditate";
+const char *TXT_DEWPOINT           = "Dew Point";
+
+// MOON PHASE
+const char *TXT_MOONPHASE       = "Moon Phase";
+const char *TXT_NEW_MOON        = "New Moon";
+const char *TXT_WAXING_CRESCENT = "Waxing Crescent";
+const char *TXT_FIRST_QUARTER   = "First Quarter";
+const char *TXT_WAXING_GIBBOUS  = "Waxing Gibbous";
+const char *TXT_FULL_MOON       = "Full Moon";
+const char *TXT_WANING_GIBBOUS  = "Waning Gibbous";
+const char *TXT_THIRD_QUARTER   = "Last Quarter";
+const char *TXT_WANING_CRESCENT = "Waning Crescent";
 
 // UV INDEX
 const char *TXT_UV_LOW       = "Scazut";
@@ -152,8 +167,8 @@ const char *TXT_WIFI_NO_CONNECTION = "Fara Conectiune";
 
 // UNIT SYMBOLS - TEMPERATURE
 const char *TXT_UNITS_TEMP_KELVIN     = "K";
-const char *TXT_UNITS_TEMP_CELSIUS    = "\260" "C";
-const char *TXT_UNITS_TEMP_FAHRENHEIT = "\260" "F";
+const char *TXT_UNITS_TEMP_CELSIUS    = "\260C";
+const char *TXT_UNITS_TEMP_FAHRENHEIT = "\260F";
 // UNIT SYMBOLS - WIND SPEED
 const char *TXT_UNITS_SPEED_METERSPERSECOND   = "m/s";
 const char *TXT_UNITS_SPEED_FEETPERSECOND     = "ft/s";
@@ -170,9 +185,13 @@ const char *TXT_UNITS_PRES_MILLIBARS                = "mbar";
 const char *TXT_UNITS_PRES_ATMOSPHERES              = "atm";
 const char *TXT_UNITS_PRES_GRAMSPERSQUARECENTIMETER = "g/cm\262";
 const char *TXT_UNITS_PRES_POUNDSPERSQUAREINCH      = "lb/in\262";
-// UNITS - VISIBILITY DISTANCE
+// UNITS SYMBOLS - VISIBILITY DISTANCE
 const char *TXT_UNITS_DIST_KILOMETERS = "km";
 const char *TXT_UNITS_DIST_MILES      = "mi";
+// UNITS SYMBOLS - PRECIPITATION
+const char *TXT_UNITS_PRECIP_MILLIMETERS = "mm";
+const char *TXT_UNITS_PRECIP_CENTIMETERS = "cm";
+const char *TXT_UNITS_PRECIP_INCHES      = "in";
 
 // MISCELLANEOUS MESSAGES
 // Title Case
@@ -244,15 +263,15 @@ const std::vector<String> TERM_BIOHAZARD =
     {"biohazard", "biological hazard"};
 const std::vector<String> TERM_EARTHQUAKE =
     {"earthquake"};
-const std::vector<String> TERM_TSUNAMI =
-    {"tsunami", "surf"};
 const std::vector<String> TERM_FIRE =
     {"fire", "red flag"};
 const std::vector<String> TERM_HEAT =
     {"heat"};
 const std::vector<String> TERM_WINTER =
-    {"blizzard", "winter", "ice", "snow", "sleet", "cold", "freezing rain",
-     "wind chill", "freeze", "frost", "hail"};
+    {"blizzard", "winter", "ice", "icy", "snow", "sleet", "cold",
+     "freezing rain", "wind chill", "freeze", "frost", "hail"};
+const std::vector<String> TERM_TSUNAMI =
+    {"tsunami", "surf"};
 const std::vector<String> TERM_LIGHTNING =
     {"thunderstorm", "storm cell", "pulse storm", "squall line", "supercell",
      "lightning"};
@@ -280,7 +299,7 @@ const std::vector<String> TERM_HURRICANE =
 const std::vector<String> TERM_DUST =
     {"dust", "sand"};
 const std::vector<String> TERM_STRONG_WIND =
-    {"wind"};
+    {"wind", "monsoon"};
 
 // AIR QUALITY INDEX
 extern "C" {
