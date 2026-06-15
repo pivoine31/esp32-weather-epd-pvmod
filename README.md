@@ -30,8 +30,7 @@ Others alternatives are:
 
 Once the station is Wake-Up (displaying a "world" icon at the upper left), the Web server is acceeded by:
 + using the mDns name: http://Weather32.local ("Weather32" may be changed through HNAME in config.h).
-+ or if it fails, using the IP address: http://A.B.C.D (where A.B.C.D is the station-ip)
-however, in this case, it is necessary to detect the station address using a network scanner (or sometimes on the admin pages of the Internel box)
++ or if it fails, using the IP address: http://A.B.C.D (where A.B.C.D is the station-ip). However, in this case, it is necessary to detect the station address using a network scanner (or sometimes on the admin pages of the Internel box)
 
 The first page displayed asks for a key. It defaults to 0000 (may be changed through WEBKEY in config.h)
 
