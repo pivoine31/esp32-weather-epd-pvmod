@@ -186,6 +186,7 @@ void beginDeepSleep  ( tm *timeInfo );
 void drawWebIcon     ( int active );
 
 extern unsigned long startTime;
+extern unsigned long restart_delay;
 
 #else
 /*

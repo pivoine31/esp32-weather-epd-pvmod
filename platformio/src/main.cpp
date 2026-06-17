@@ -56,6 +56,7 @@ Preferences prefs;
 
 unsigned long startTime;
 unsigned long actionTime;
+unsigned long restart_delay = 0L;
 
 // When set means Web server started but with no display update
 // (i.e. error while report-error flag disabled)
@@ -70,11 +71,14 @@ int MaxErrorCnt = HTTP_MAX_ERROR_CNT;
 /*
  * restart_wdg
  *
- * Restart the wathdog timer while web user is acting
+ * Restart the watchdog timer while web user is acting
  */
-void restart_wdg ( void )
+void restart_wdg ( int force )
 {
-  actionTime = millis();
+  if ( force )
+    actionTime = millis() - (MaxActTim*1000);
+  else
+    actionTime = millis();
 }
 
 /*
@@ -665,6 +669,11 @@ void loop()
     }
   }
 #endif // BUTTON_PIN
+
+  if ( restart_delay )
+  {
+     do_deep_sleep(restart_delay);
+  }
 
   if ( (millis() - actionTime) >= (MaxActTim*1000) )  // Rollover handled by C substract
   {

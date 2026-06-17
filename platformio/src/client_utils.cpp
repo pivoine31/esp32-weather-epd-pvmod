@@ -1474,7 +1474,7 @@ void web_svr_setup ( void )
       if ( !SilentErr )
         drawWebIcon(0);
 
-      do_deep_sleep(mintm);
+      restart_delay = mintm;
     }
     else
       page_lost(request);
